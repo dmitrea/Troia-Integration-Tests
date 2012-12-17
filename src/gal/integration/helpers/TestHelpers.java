@@ -1,6 +1,7 @@
 package gal.integration.helpers;
 
 
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -21,7 +22,6 @@ import com.datascience.gal.CorrectLabel;
 import com.datascience.gal.MisclassificationCost;
 
 public class TestHelpers {
-	
 	
 	DataManager dataManager = DataManager.getInstance();
 	FileReaders fileReader = new FileReaders();

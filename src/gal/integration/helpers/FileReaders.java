@@ -1,5 +1,6 @@
 package gal.integration.helpers;
 
+
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
