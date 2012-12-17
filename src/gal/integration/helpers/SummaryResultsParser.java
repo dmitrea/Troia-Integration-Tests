@@ -101,11 +101,5 @@ public class SummaryResultsParser {
 		this.data = transformToHashMap(dataList);
 		this.dataQuality = transformToHashMap(dataQualityList);
 		this.workerQuality = transformToHashMap(workerQualityList);
-		
-		System.out.println(this.parameters);
-		System.out.println(this.data);
-		System.out.println(this.dataQuality);
-		System.out.println(this.workerQuality);
-
 	}
 }
