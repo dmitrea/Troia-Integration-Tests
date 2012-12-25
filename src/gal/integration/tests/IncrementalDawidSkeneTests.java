@@ -14,7 +14,7 @@ import org.junit.Test;
 import com.datascience.gal.*;
 import com.datascience.gal.core.*;
 
-public class BatchDawidSkeneTests {
+public class IncrementalDawidSkeneTests {
 	
 	public static String TESTDATA_BASEDIR = System.getProperty("user.dir").concat("//src//gal//integration//datasets");
 	public static String TEST_DIR = "testComputeDS";
@@ -41,7 +41,7 @@ public class BatchDawidSkeneTests {
 	static HashSet<MisclassificationCost> misclassificationCosts;
 	static Collection<CorrectLabel> correctLabels;
 	static Collection<AssignedLabel> assignedLabels;
-	static BatchDawidSkene ds;
+	static IncrementalDawidSkene ds;
 	static TestHelpers testHelper;
 	static SummaryResultsParser summaryResultsParser;
 	
@@ -51,7 +51,7 @@ public class BatchDawidSkeneTests {
 		summaryResultsParser = new SummaryResultsParser();
 		
 		categories = testHelper.LoadCategories(CATEGORIES_FILE_PATH);
-		ds = new BatchDawidSkene(PROJECT_ID, categories);
+		ds = new IncrementalDawidSkene(PROJECT_ID, categories);
 				
 		misclassificationCosts = testHelper.LoadMisclassificationCosts(MISCLASSIFICATION_COSTS_FILE_PATH);
 		ds.addMisclassificationCosts(misclassificationCosts);

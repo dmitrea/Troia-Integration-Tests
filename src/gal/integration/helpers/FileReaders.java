@@ -1,10 +1,7 @@
 package gal.integration.helpers;
 
-
-import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -13,15 +10,10 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import main.java.com.datascience.gal.dataGenerator.DataManager;
-
-import org.apache.log4j.Logger;
-
+import com.datascience.gal.dataGenerator.*;
 import com.datascience.gal.MisclassificationCost;
 
 public class FileReaders {
-	
-	private static Logger  logger = Logger.getLogger(DataManager.class);
 	
 	public FileReaders(){
 		
@@ -34,7 +26,6 @@ public class FileReaders {
 	 */
 	public Set<MisclassificationCost> loadMisclassificationCostData(String filename)
 	throws FileNotFoundException{
-		logger.info("Loading misclassification cost file");
 		
 		Set<MisclassificationCost> misclassificationCosts = new HashSet<MisclassificationCost>();
 		FileInputStream stream = new FileInputStream(filename);
@@ -61,7 +52,6 @@ public class FileReaders {
 	 */
 	public LinkedList <Map<String, Object>> loadWorkerSummaryFile(String filename) 
 	throws FileNotFoundException {
-		logger.info("Loading worker summary file");
 	
 		LinkedList <Map<String, Object>> workerSummaries = new LinkedList<Map<String, Object>>();
 		FileInputStream stream = new FileInputStream(filename);

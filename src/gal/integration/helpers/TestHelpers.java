@@ -1,21 +1,19 @@
 package gal.integration.helpers;
 
-
-
-import java.io.File;
 import java.io.FileNotFoundException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Locale;
 import java.util.Map;
 
 import troiaClient.GoldLabel;
 import troiaClient.Label;
 
-import main.java.com.datascience.gal.dataGenerator.DataManager;
-
+import com.datascience.gal.dataGenerator.DataManager;
 import com.datascience.gal.AssignedLabel;
 import com.datascience.gal.Category;
 import com.datascience.gal.CorrectLabel;
@@ -25,6 +23,16 @@ public class TestHelpers {
 	
 	DataManager dataManager = DataManager.getInstance();
 	FileReaders fileReader = new FileReaders();
+	
+	public String format(Double result) {
+		int decimalPlace = 4;
+		if (null == result || Double.isNaN(result))
+			return "N/A";
+		
+		BigDecimal bd = new BigDecimal(Double.toString(result));
+		bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
+		return String.format(Locale.ENGLISH, "%2.4f",bd.doubleValue());
+	}
 	
 	/**
 	 * Loads the categories and probabilities from the given file
