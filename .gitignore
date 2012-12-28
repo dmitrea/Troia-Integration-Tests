@@ -13,3 +13,5 @@ target/*
 # Astyle
 *.orig
 
+*/bin/*
+

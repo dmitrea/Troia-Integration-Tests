@@ -1,2 +1,0 @@
-Prior[porn]=1.0
-Prior[notporn]=1.0

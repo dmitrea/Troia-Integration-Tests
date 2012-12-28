@@ -10,7 +10,6 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import com.datascience.gal.dataGenerator.*;
 import com.datascience.gal.MisclassificationCost;
 
 public class FileReaders {

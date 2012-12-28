@@ -1,6 +1,7 @@
 package gal.integration.helpers;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 
 public class FileWriters {
@@ -15,14 +16,27 @@ public class FileWriters {
 	 */
 	public void writeToFile(String fileName, String dataText){
 		try{
-			FileWriter fstream = new FileWriter(fileName);
+			FileWriter fstream = new FileWriter(fileName, true);
 			BufferedWriter out = new BufferedWriter(fstream);
 			out.write(dataText);
+			out.newLine();
 			out.close();
 		}
 		catch (Exception e){
 			System.err.println("Error: " + e.getMessage());
 		}
 	}
-
+		
+	public void createNewFile(String filePathString){
+		try{
+			File f = new File(filePathString);
+			if(f.exists()) {
+				f.delete();
+			}
+		}
+		catch (Exception e){
+			System.err.println("Error: " + e.getMessage());
+		}
+	}
+	
 }

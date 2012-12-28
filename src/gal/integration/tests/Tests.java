@@ -1,71 +1,59 @@
 package gal.integration.tests;
-import static org.junit.Assert.*;
 
-import gal.integration.helpers.*;
+import static org.junit.Assert.assertEquals;
 
-import java.io.File;
-import java.util.Collection;
+import gal.integration.helpers.FileWriters;
+import gal.integration.helpers.SummaryResultsParser;
+import gal.integration.helpers.TestHelpers;
+
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
-import com.datascience.gal.*;
-import com.datascience.gal.core.*;
 
-public class IncrementalDawidSkeneTests {
-	
-	public static String TESTDATA_BASEDIR = System.getProperty("user.dir").concat("//src//gal//integration//datasets");
-	public static String TEST_DIR = "testComputeDS";
-	
-	//input 
-	public static String CATEGORIES_FILE = "categories.txt";
-	public static String MISCLASSIFICATION_COSTS_FILE = "costs.txt";
-	public static String GOLDLABELS_FILE = "correct.txt";
-	public static String LABELS_FILE = "input.txt";
-	
-	public static String inputDir = TESTDATA_BASEDIR + File.separator + TEST_DIR + File.separator + "input";
-	public static String CATEGORIES_FILE_PATH = inputDir + File.separator + CATEGORIES_FILE;
-	public static String MISCLASSIFICATION_COSTS_FILE_PATH = inputDir + File.separator + MISCLASSIFICATION_COSTS_FILE;
-	public static String GOLDLABELS_FILE_PATH = inputDir + File.separator +  GOLDLABELS_FILE;
-	public static String LABELS_FILE_PATH =  inputDir + File.separator + LABELS_FILE;
+import com.datascience.gal.AbstractDawidSkene;
+import com.datascience.gal.Datum;
+import com.datascience.gal.core.DataCostEstimator;
+import com.datascience.gal.core.DataCostEvaluator;
 
-	//output
-	public static String outputDir = TESTDATA_BASEDIR + File.separator + TEST_DIR + File.separator + "output";
-	public static String EXPECTED_SUMMARY_FILE =  outputDir + File.separator + "summary.txt";
+public class Tests {
 	
-	public static String PROJECT_ID = "12345";
+	public static String SUMMARY_FILE;
+	public static String TEST_RESULTS_FILE;
+	public static AbstractDawidSkene ds;
+	public static FileWriters fileWriter;
+	public static TestHelpers testHelper;
+	public static SummaryResultsParser summaryResultsParser;
 	
-	static Collection<Category> categories;
-	static HashSet<MisclassificationCost> misclassificationCosts;
-	static Collection<CorrectLabel> correctLabels;
-	static Collection<AssignedLabel> assignedLabels;
-	static IncrementalDawidSkene ds;
-	static TestHelpers testHelper;
-	static SummaryResultsParser summaryResultsParser;
 	
-	@BeforeClass
-	public static void loadDSData(){
-		testHelper = new TestHelpers();
-		summaryResultsParser = new SummaryResultsParser();
+	public static class TestSetup{
+		public AbstractDawidSkene abstractDS;
+		public String summaryResultsFile;
+		public String testResultsFile;
 		
-		categories = testHelper.LoadCategories(CATEGORIES_FILE_PATH);
-		ds = new IncrementalDawidSkene(PROJECT_ID, categories);
-				
-		misclassificationCosts = testHelper.LoadMisclassificationCosts(MISCLASSIFICATION_COSTS_FILE_PATH);
-		ds.addMisclassificationCosts(misclassificationCosts);
-				
-		correctLabels = testHelper.LoadGoldLabels(GOLDLABELS_FILE_PATH);
-		ds.addCorrectLabels(correctLabels);
-				
-		assignedLabels = testHelper.LoadWorkerAssignedLabels(LABELS_FILE_PATH);
-		ds.addAssignedLabels(assignedLabels);
-		
-		//load the expected summary file
-		summaryResultsParser.ParseSummaryFile(EXPECTED_SUMMARY_FILE);
+		public TestSetup(AbstractDawidSkene ds, String summaryFile, String resultsFile) {
+			abstractDS = ds;
+			summaryResultsFile = summaryFile;
+			testResultsFile = resultsFile;
+		}		
 	}
+	
+	public static void initSetup(TestSetup testSetup){
+		ds = testSetup.abstractDS;
+		SUMMARY_FILE = testSetup.summaryResultsFile;
+		TEST_RESULTS_FILE = testSetup.testResultsFile;
+		
+		testHelper = new TestHelpers();
 
+		//prepare the test results file
+		fileWriter = new FileWriters();
+		fileWriter.createNewFile(TEST_RESULTS_FILE);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "Metric,GAL value,Troia value");
+		
+		summaryResultsParser = new SummaryResultsParser();
+		summaryResultsParser.ParseSummaryFile(SUMMARY_FILE);
+	}
+	
 	@Test
 	public void testSummaryFile_Data() {	
 		HashMap<String, String> data = summaryResultsParser.getData();
@@ -76,7 +64,7 @@ public class IncrementalDawidSkeneTests {
 	}	
 
 	@Test
-	public void testSummaryFile_DataQuality_DataCost_Estm_DS_ML() {	
+	public void testSummaryFile_DataQuality_DataCost_Estm_DS_Exp() {	
 		HashMap<String, String> data = summaryResultsParser.getDataQuality();
 		DataCostEstimator dataCostEstimator = DataCostEstimator.getInstance();
 		Map<String, Datum> objects = ds.getObjects();
@@ -90,11 +78,14 @@ public class IncrementalDawidSkeneTests {
 		
 		//calculate the average
 		avgClassificationCost = avgClassificationCost/objects.size();
-		assertEquals(testHelper.format(avgClassificationCost), data.get("[DataCost_Estm_DS_ML] Estimated classification cost (DS_ML metric)"));
+		String expectedClassificationCost = data.get("[DataCost_Estm_DS_Exp] Estimated classification cost (DS_Exp metric)");
+		String actualClassificationCost = testHelper.format(avgClassificationCost);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Estm_DS_Exp," + expectedClassificationCost + "," + actualClassificationCost);
+		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
 	@Test
-	public void testSummaryFile_DataQuality_DataCost_Estm_MV_ML() {	
+	public void testSummaryFile_DataQuality_DataCost_Estm_MV_Exp () {	
 		HashMap<String, String> data = summaryResultsParser.getDataQuality();
 		DataCostEstimator dataCostEstimator = DataCostEstimator.getInstance();
 		Map<String, Datum> objects = ds.getObjects();
@@ -108,10 +99,13 @@ public class IncrementalDawidSkeneTests {
 		
 		//calculate the average
 		avgClassificationCost = avgClassificationCost/objects.size();
-		assertEquals(testHelper.format(avgClassificationCost), data.get("[DataCost_Estm_MV_ML] Estimated classification cost (MV_ML metric)"));
+		String expectedClassificationCost = data.get("[DataCost_Estm_MV_Exp] Estimated classification cost (MV_Exp metric)");
+		String actualClassificationCost = testHelper.format(avgClassificationCost);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Estm_MV_Exp," + expectedClassificationCost + "," + actualClassificationCost);
+		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
-	//@Test
+	@Test
 	public void testSummaryFile_DataQuality_DataCost_Estm_DS_Min() {	
 		HashMap<String, String> data = summaryResultsParser.getDataQuality();
 		DataCostEstimator dataCostEstimator = DataCostEstimator.getInstance();
@@ -126,7 +120,10 @@ public class IncrementalDawidSkeneTests {
 		
 		//calculate the average
 		avgClassificationCost = avgClassificationCost/objects.size();
-		assertEquals(testHelper.format(avgClassificationCost), data.get("[DataCost_Estm_DS_Min] Estimated classification cost (DS_Min metric)"));
+		String expectedClassificationCost = data.get("[DataCost_Estm_DS_Min] Estimated classification cost (DS_Min metric)");
+		String actualClassificationCost =  testHelper.format(avgClassificationCost);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Estm_DS_Min," + expectedClassificationCost + "," + actualClassificationCost);
+		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
 	@Test
@@ -144,7 +141,10 @@ public class IncrementalDawidSkeneTests {
 		
 		//calculate the average
 		avgClassificationCost = avgClassificationCost/objects.size();
-		assertEquals(testHelper.format(avgClassificationCost), data.get("[DataCost_Estm_MV_Min] Estimated classification cost (MV_Min metric)"));
+		String expectedClassificationCost = data.get("[DataCost_Estm_MV_Min] Estimated classification cost (MV_Min metric)");
+		String actualClassificationCost = testHelper.format(avgClassificationCost);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Estm_MV_Min," + expectedClassificationCost + "," + actualClassificationCost);
+		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
 	@Test
@@ -162,7 +162,10 @@ public class IncrementalDawidSkeneTests {
 		
 		//calculate the average
 		avgClassificationCost = avgClassificationCost/objects.size();
-		assertEquals(testHelper.format(avgClassificationCost), data.get("[DataCost_Eval_DS_Min] Actual classification cost for EM, min-cost classification"));
+		String expectedClassificationCost = data.get("[DataCost_Eval_DS_Min] Actual classification cost for EM, min-cost classification");
+		String actualClassificationCost = testHelper.format(avgClassificationCost);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Eval_DS_Min," + expectedClassificationCost + "," + actualClassificationCost);
+		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 
 	@Test
@@ -180,10 +183,10 @@ public class IncrementalDawidSkeneTests {
 		
 		//calculate the average
 		avgClassificationCost = avgClassificationCost/objects.size();
-		assertEquals(testHelper.format(avgClassificationCost), data.get("[DataCost_Eval_MV_Min] Actual classification cost for naive min-cost classification"));
+		String expectedClassificationCost = data.get("[DataCost_Eval_MV_Min] Actual classification cost for naive min-cost classification");
+		String actualClassificationCost = testHelper.format(avgClassificationCost);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Eval_MV_Min," + expectedClassificationCost + "," + actualClassificationCost);
+		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 
-	
-
-	
 }

@@ -1,0 +1,7 @@
+Metric,GAL value,Troia value
+DataCost_Estm_DS_Exp,0.0725,0.5000
+DataCost_Estm_MV_Exp,0.2560,0.4160
+DataCost_Estm_DS_Min,0.0403,0.5000
+DataCost_Estm_MV_Min,0.2000,0.3200
+DataCost_Eval_DS_Min,N/A,0.6000
+DataCost_Eval_MV_Min,N/A,0.6000

@@ -101,6 +101,15 @@ public class TestHelpers {
 	}
 	
 	/**
+	 * Loads the evaluation labels from the given file
+	 * @param evaluationLabelsFileName
+	 * @return Collection<CorrectLabel>
+	 */
+	public Collection<CorrectLabel> LoadEvaluationLabels(String evaluationLabelsFileName){
+		return LoadGoldLabels(evaluationLabelsFileName);
+	}
+	
+	/**
 	 * Loads the worker assigned labels from the given file
 	 * @param labelsFileName
 	 * @return Collection <Label>
