@@ -8,6 +8,7 @@ import gal.integration.helpers.TestHelpers;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -15,9 +16,11 @@ import com.datascience.gal.AbstractDawidSkene;
 import com.datascience.gal.Datum;
 import com.datascience.gal.core.DataCostEstimator;
 import com.datascience.gal.core.DataCostEvaluator;
+import com.datascience.gal.decision.*;
 
 public class Tests {
-	
+
+	public static int NO_ITERATIONS = 50;
 	public static String SUMMARY_FILE;
 	public static String TEST_RESULTS_FILE;
 	public static AbstractDawidSkene ds;
@@ -40,6 +43,7 @@ public class Tests {
 	
 	public static void initSetup(TestSetup testSetup){
 		ds = testSetup.abstractDS;
+		ds.estimate(NO_ITERATIONS);
 		SUMMARY_FILE = testSetup.summaryResultsFile;
 		TEST_RESULTS_FILE = testSetup.testResultsFile;
 		
@@ -57,11 +61,107 @@ public class Tests {
 	@Test
 	public void testSummaryFile_Data() {	
 		HashMap<String, String> data = summaryResultsParser.getData();
-		assertEquals(ds.getCategories().size(), Integer.parseInt(data.get("Categories")));
-		assertEquals(ds.getNumberOfObjects(), Integer.parseInt(data.get("Objects in Data Set")));
-		assertEquals(ds.getNumberOfWorkers() , Integer.parseInt(data.get("Workers in Data Set")));
-		//assertEquals(ds., data.get("Labels Assigned by Workers"));
+
+		int expectedCategoriesNo = Integer.parseInt(data.get("Categories"));
+		int actualCategoriesNo = ds.getCategories().size();
+		assertEquals(expectedCategoriesNo, actualCategoriesNo);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "Categories," + expectedCategoriesNo + "," + actualCategoriesNo);
+				
+		int expectedObjectsNo = Integer.parseInt(data.get("Objects in Data Set"));
+		int actualObjectsNo = ds.getNumberOfObjects();	
+		assertEquals(expectedObjectsNo, actualObjectsNo);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "Objects in Data Set," + expectedObjectsNo + "," + actualObjectsNo);
+		
+		int expectedWorkersNo = Integer.parseInt(data.get("Workers in Data Set"));
+		int actualWorkersNo = ds.getNumberOfWorkers();	
+		assertEquals(expectedWorkersNo, actualWorkersNo);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "Workers in Data Set," + expectedWorkersNo + "," + actualWorkersNo);
+		
+		//get the labels
+		int noAssignedLabels = 0;
+		Map <String, Datum> objects = ds.getObjects();
+		for (Datum datum : objects.values() ){
+			noAssignedLabels +=	datum.getAssignedLabels().size();
+		}
+		
+		int expectedLabelsNo = Integer.parseInt(data.get("Labels Assigned by Workers"));
+		assertEquals(expectedLabelsNo, noAssignedLabels);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "Labels Assigned by Workers," + expectedLabelsNo + "," + noAssignedLabels);
 	}	
+	
+	@Test
+	public void testSummaryFile_ProbabilityDistributions_DS(){
+		LabelProbabilityDistributionCalulators.DS probDistributionCalculator = new LabelProbabilityDistributionCalulators.DS();
+		HashMap<String, String> data = summaryResultsParser.getDataQuality();
+		Map <String, Datum> objects = ds.getObjects();
+		
+		//init the categoryProbabilities hashmap
+		HashMap <String, Double> categoryProbabilities = new HashMap<String, Double>();
+		for (String categoryName : ds.getCategories().keySet())
+			categoryProbabilities.put(categoryName, 0.0);
+		
+		//iterate through the datum objects and calculate the sum of the probabilities associated  to each category
+		int noObjects = objects.size();
+		for (Map.Entry<String, Datum> object : objects.entrySet())
+		{
+		    Datum datum = object.getValue();
+		    
+		    Map <String, Double> objectProbabilities = probDistributionCalculator.calculateDistribution(datum, ds);
+		    for (String categoryName : objectProbabilities.keySet()){
+		    	categoryProbabilities.put(categoryName, (categoryProbabilities.get(categoryName) + objectProbabilities.get(categoryName)));    	
+		    }
+		}
+		
+		//calculate the average probability value for each category
+		for (String categoryName : ds.getCategories().keySet()){
+			categoryProbabilities.put(categoryName, categoryProbabilities.get(categoryName)/noObjects);
+			System.out.println(categoryName + " - " + categoryProbabilities.get(categoryName));
+		}
+		for (String categoryName : ds.getCategories().keySet()){
+			String metricName = "[DS_Pr[" + categoryName + "]] DS estimate for prior probability of category " + categoryName;
+			String expectedCategoryProbability = data.get(metricName);
+			String actualCategoryProbability = testHelper.format(categoryProbabilities.get(categoryName));
+			fileWriter.writeToFile(TEST_RESULTS_FILE, "[DS_Pr[" + categoryName + "]]," + expectedCategoryProbability + "," + actualCategoryProbability);
+			//assertEquals(expectedCategoryProbability, actualCategoryProbability);
+		}	
+	}
+	
+	@Test
+	public void testSummaryFile_ProbabilityDistributions_MV(){
+		LabelProbabilityDistributionCalulators.MV probDistributionCalculator = new LabelProbabilityDistributionCalulators.MV();
+		HashMap<String, String> data = summaryResultsParser.getDataQuality();
+		Map <String, Datum> objects = ds.getObjects();
+		
+		//init the categoryProbabilities hashmap
+		HashMap <String, Double> categoryProbabilities = new HashMap<String, Double>();
+		for (String categoryName : ds.getCategories().keySet())
+			categoryProbabilities.put(categoryName, 0.0);
+		
+		//iterate through the datum objects and calculate the sum of the probabilities associated  to each category
+		int noObjects = objects.size();
+		for (Map.Entry<String, Datum> object : objects.entrySet())
+		{
+		    Datum datum = object.getValue();
+		    
+		    Map <String, Double> objectProbabilities = probDistributionCalculator.calculateDistribution(datum, ds);
+		    for (String categoryName : objectProbabilities.keySet()){
+		    	categoryProbabilities.put(categoryName, (categoryProbabilities.get(categoryName) + objectProbabilities.get(categoryName)));    	
+		    }
+		}
+		
+		//calculate the average probability value for each category
+		for (String categoryName : ds.getCategories().keySet()){
+			categoryProbabilities.put(categoryName, categoryProbabilities.get(categoryName)/noObjects);
+			System.out.println(categoryName + " - " + categoryProbabilities.get(categoryName));
+		}
+		for (String categoryName : ds.getCategories().keySet()){
+			String metricName = "[MV_Pr[" + categoryName + "]] Majority Vote estimate for prior probability of category " + categoryName;
+			String expectedCategoryProbability = data.get(metricName);
+			String actualCategoryProbability = testHelper.format(categoryProbabilities.get(categoryName));
+			fileWriter.writeToFile(TEST_RESULTS_FILE, "[MV_Pr[" + categoryName + "]]," + expectedCategoryProbability + "," + actualCategoryProbability);
+			//assertEquals(expectedCategoryProbability, actualCategoryProbability);
+		}	
+	}
 
 	@Test
 	public void testSummaryFile_DataQuality_DataCost_Estm_DS_Exp() {	

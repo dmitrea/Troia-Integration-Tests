@@ -1,9 +1,13 @@
 Metric,GAL value,Troia value
-DataCost_Estm_DS_Exp,0.0725,0.5000
-DataCost_Estm_MV_Exp,0.2560,0.1922
-DataCost_Estm_DS_Min,0.0403,0.5000
-DataCost_Estm_MV_Min,0.2000,0.1394
-DataCost_Estm_DS_Exp,0.0725,0.5000
-DataCost_Estm_MV_Exp,0.2560,0.1922
-DataCost_Estm_DS_Min,0.0403,0.5000
-DataCost_Estm_MV_Min,0.2000,0.1394
+[MV_Pr[1]],0.2894,0.2812
+[MV_Pr[0]],0.7106,0.7188
+[DS_Pr[1]],0.2693,0.4124
+[DS_Pr[0]],0.7307,0.5876
+DataCost_Estm_DS_Exp,0.0352,0.1576
+DataCost_Estm_MV_Exp,0.1886,0.1922
+DataCost_Estm_DS_Min,0.0195,0.1062
+DataCost_Estm_MV_Min,0.1370,0.1394
+Categories,2,2
+Objects in Data Set,1000,1000
+Workers in Data Set,83,83
+Labels Assigned by Workers,5000,5000
