@@ -10,9 +10,6 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 
-import troiaClient.GoldLabel;
-import troiaClient.Label;
-
 import com.datascience.gal.dataGenerator.DataManager;
 import com.datascience.gal.AssignedLabel;
 import com.datascience.gal.Category;
@@ -82,7 +79,7 @@ public class TestHelpers {
 	 * @return Collection<CorrectLabel>
 	 */
 	public Collection<CorrectLabel> LoadGoldLabels(String goldLabelsFileName){
-		Collection<GoldLabel> goldLabels = new ArrayList<GoldLabel>();
+		Collection<CorrectLabel> goldLabels = new ArrayList<CorrectLabel>();
 		
 		try{
 			goldLabels = dataManager.loadGoldLabelsFromFile(goldLabelsFileName);
@@ -91,13 +88,7 @@ public class TestHelpers {
 			ex.printStackTrace();
 		}
 		
-		//Convert the Labels to AssignedLabels
-		Collection<CorrectLabel> correctLabels = new ArrayList<CorrectLabel>();
-		for (GoldLabel goldLabel : goldLabels) {
-			CorrectLabel correctLabel = new CorrectLabel(goldLabel.getObjectName(), goldLabel.getCorrectCategory());
-			correctLabels.add(correctLabel);
-		}
-		return correctLabels;
+		return goldLabels;
 	}
 	
 	/**
@@ -115,20 +106,13 @@ public class TestHelpers {
 	 * @return Collection <Label>
 	 */
 	public Collection<AssignedLabel> LoadWorkerAssignedLabels(String labelsFileName){
-		Collection <Label> labels = new ArrayList<Label>();
+		Collection <AssignedLabel> assignedLabels = new ArrayList<AssignedLabel>();
 		
 		try{
-			labels = dataManager.loadLabelsFromFile(labelsFileName);
+			assignedLabels = dataManager.loadLabelsFromFile(labelsFileName);
 		}
 		catch (FileNotFoundException ex){
 			ex.printStackTrace();
-		}
-		
-		//Convert the Labels to AssignedLabels
-		Collection<AssignedLabel> assignedLabels = new ArrayList<AssignedLabel>();
-		for (Label label : labels) {
-			AssignedLabel assignedLabel = new AssignedLabel(label.getWorkerName(), label.getObjectName(), label.getCategoryName());
-			assignedLabels.add(assignedLabel);
 		}
 		
 		return assignedLabels;
