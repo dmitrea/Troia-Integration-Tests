@@ -60,7 +60,7 @@ public class Tests {
 	}
 	
 	@Test
-	public void testSummaryFile_Data() {	
+	public void test_Data() {	
 		HashMap<String, String> data = summaryResultsParser.getData();
 
 		int expectedCategoriesNo = Integer.parseInt(data.get("Categories"));
@@ -91,7 +91,7 @@ public class Tests {
 	}	
 	
 	@Test
-	public void testSummaryFile_ProbabilityDistributions_DS(){
+	public void test_ProbabilityDistributions_DS(){
 		HashMap<String, String> data = summaryResultsParser.getDataQuality();
 		ILabelProbabilityDistributionCalculator probDistributionCalculator = LabelProbabilityDistributionCalculators.get("DS");
 		DecisionEngine decisionEngine = new DecisionEngine(probDistributionCalculator, null, null);
@@ -128,7 +128,7 @@ public class Tests {
 	}
 	
 	@Test
-	public void testSummaryFile_ProbabilityDistributions_MV(){
+	public void test_ProbabilityDistributions_MV(){
 		HashMap<String, String> data = summaryResultsParser.getDataQuality();
 		ILabelProbabilityDistributionCalculator probDistributionCalculator = LabelProbabilityDistributionCalculators.get("MV");
 		DecisionEngine decisionEngine = new DecisionEngine(probDistributionCalculator, null, null);
@@ -167,7 +167,7 @@ public class Tests {
 	
 	
 	@Test
-	public void testSummaryFile_DataCost_Estm_DS_Exp() {	
+	public void test_DataCost_Estm_DS_Exp() {	
 		HashMap<String, String> data = summaryResultsParser.getDataQuality();
 		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("DS");
 		ILabelProbabilityDistributionCostCalculator	labelProbabilityDistributionCostCalculator = LabelProbabilityDistributionCostCalculators.get("EXPECTEDCOST");
@@ -192,7 +192,7 @@ public class Tests {
 	
 	
 	@Test
-	public void testSummaryFile_DataCost_Estm_MV_Exp () {	
+	public void test_DataCost_Estm_MV_Exp () {	
 		HashMap<String, String> data = summaryResultsParser.getDataQuality();
 		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("MV");
 		ILabelProbabilityDistributionCostCalculator	labelProbabilityDistributionCostCalculator = LabelProbabilityDistributionCostCalculators.get("EXPECTEDCOST");
@@ -217,19 +217,19 @@ public class Tests {
 	
 	@Test
 	@Ignore
-	public void testSummaryFile_DataCost_Estm_DS_ML() {	
+	public void test_DataCost_Estm_DS_ML() {	
 		
 	}	
 	
 	@Test
 	@Ignore
-	public void testSummaryFile_DataCost_Estm_MV_ML() {	
+	public void test_DataCost_Estm_MV_ML() {	
 		
 	}	
 	
 	
 	@Test
-	public void testSummaryFile_DataCost_Estm_DS_Min() {	
+	public void test_DataCost_Estm_DS_Min() {	
 		HashMap<String, String> data = summaryResultsParser.getDataQuality();
 		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("DS");
 		ILabelProbabilityDistributionCostCalculator	labelProbabilityDistributionCostCalculator = LabelProbabilityDistributionCostCalculators.get("MINCOST");
@@ -253,7 +253,7 @@ public class Tests {
 	}	
 	
 	@Test
-	public void testSummaryFile_DataCost_Estm_MV_Min() {	
+	public void test_DataCost_Estm_MV_Min() {	
 		HashMap<String, String> data = summaryResultsParser.getDataQuality();
 		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("MV");
 		ILabelProbabilityDistributionCostCalculator	labelProbabilityDistributionCostCalculator = LabelProbabilityDistributionCostCalculators.get("MINCOST");
@@ -278,31 +278,31 @@ public class Tests {
 	
 	@Test
 	@Ignore
-	public void testSummaryFile_DataCost_Estm_NoVote_Exp() {	
+	public void test_DataCost_Estm_NoVote_Exp() {	
 		
 	}	
 	
 	@Test
 	@Ignore
-	public void testSummaryFile_DataCost_Estm_NoVote_Min() {	
+	public void test_DataCost_Estm_NoVote_Min() {	
 		
 	}	
 	
 	@Test
 	@Ignore
-	public void testSummaryFile_DataCost_Eval_DS_ML() {	
+	public void test_DataCost_Eval_DS_ML() {	
 		
 	}	
 	
 	@Test
 	@Ignore
-	public void testSummaryFile_DataCost_Eval_MV_ML() {	
+	public void test_DataCost_Eval_MV_ML() {	
 		
 	}	
 	
 	
 	@Test
-	public void testSummaryFile_DataQuality_DataCost_Eval_DS_Min() {	
+	public void test_DataCost_Eval_DS_Min() {	
 		HashMap<String, String> data = summaryResultsParser.getDataQuality();
 		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("DS");
 		IObjectLabelDecisionAlgorithm objectLabelDecisionAlgorithm = ObjectLabelDecisionAlgorithms.get("MINCOST");
@@ -325,7 +325,7 @@ public class Tests {
 	}	
 
 	@Test
-	public void testSummaryFile_DataQuality_DataCost_Eval_MV_Min() {	
+	public void test_DataCost_Eval_MV_Min() {	
 		HashMap<String, String> data = summaryResultsParser.getDataQuality();
 		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("MV");
 		IObjectLabelDecisionAlgorithm objectLabelDecisionAlgorithm = ObjectLabelDecisionAlgorithms.get("MINCOST");
@@ -349,13 +349,13 @@ public class Tests {
 	
 	@Test
 	@Ignore
-	public void testSummaryFile_DataCost_Eval_DS_Soft() {	
+	public void test_DataCost_Eval_DS_Soft() {	
 		
 	}	
 	
 	@Test
 	@Ignore
-	public void testSummaryFile_DataCost_Eval_MV_Soft() {	
+	public void test_DataCost_Eval_MV_Soft() {	
 		
 	}	
 }
