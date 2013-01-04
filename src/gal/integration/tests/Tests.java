@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.datascience.gal.AbstractDawidSkene;
@@ -166,7 +167,7 @@ public class Tests {
 	
 	
 	@Test
-	public void testSummaryFile_DataQuality_DataCost_Estm_DS_Exp() {	
+	public void testSummaryFile_DataCost_Estm_DS_Exp() {	
 		HashMap<String, String> data = summaryResultsParser.getDataQuality();
 		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("DS");
 		ILabelProbabilityDistributionCostCalculator	labelProbabilityDistributionCostCalculator = LabelProbabilityDistributionCostCalculators.get("EXPECTEDCOST");
@@ -191,7 +192,7 @@ public class Tests {
 	
 	
 	@Test
-	public void testSummaryFile_DataQuality_DataCost_Estm_MV_Exp () {	
+	public void testSummaryFile_DataCost_Estm_MV_Exp () {	
 		HashMap<String, String> data = summaryResultsParser.getDataQuality();
 		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("MV");
 		ILabelProbabilityDistributionCostCalculator	labelProbabilityDistributionCostCalculator = LabelProbabilityDistributionCostCalculators.get("EXPECTEDCOST");
@@ -215,7 +216,20 @@ public class Tests {
 	}	
 	
 	@Test
-	public void testSummaryFile_DataQuality_DataCost_Estm_DS_Min() {	
+	@Ignore
+	public void testSummaryFile_DataCost_Estm_DS_ML() {	
+		
+	}	
+	
+	@Test
+	@Ignore
+	public void testSummaryFile_DataCost_Estm_MV_ML() {	
+		
+	}	
+	
+	
+	@Test
+	public void testSummaryFile_DataCost_Estm_DS_Min() {	
 		HashMap<String, String> data = summaryResultsParser.getDataQuality();
 		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("DS");
 		ILabelProbabilityDistributionCostCalculator	labelProbabilityDistributionCostCalculator = LabelProbabilityDistributionCostCalculators.get("MINCOST");
@@ -239,7 +253,7 @@ public class Tests {
 	}	
 	
 	@Test
-	public void testSummaryFile_DataQuality_DataCost_Estm_MV_Min() {	
+	public void testSummaryFile_DataCost_Estm_MV_Min() {	
 		HashMap<String, String> data = summaryResultsParser.getDataQuality();
 		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("MV");
 		ILabelProbabilityDistributionCostCalculator	labelProbabilityDistributionCostCalculator = LabelProbabilityDistributionCostCalculators.get("MINCOST");
@@ -260,7 +274,32 @@ public class Tests {
 		String actualClassificationCost = testHelper.format(avgClassificationCost);
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Estm_MV_Min," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
+	}
+	
+	@Test
+	@Ignore
+	public void testSummaryFile_DataCost_Estm_NoVote_Exp() {	
+		
 	}	
+	
+	@Test
+	@Ignore
+	public void testSummaryFile_DataCost_Estm_NoVote_Min() {	
+		
+	}	
+	
+	@Test
+	@Ignore
+	public void testSummaryFile_DataCost_Eval_DS_ML() {	
+		
+	}	
+	
+	@Test
+	@Ignore
+	public void testSummaryFile_DataCost_Eval_MV_ML() {	
+		
+	}	
+	
 	
 	@Test
 	public void testSummaryFile_DataQuality_DataCost_Eval_DS_Min() {	
@@ -269,7 +308,7 @@ public class Tests {
 		IObjectLabelDecisionAlgorithm objectLabelDecisionAlgorithm = ObjectLabelDecisionAlgorithms.get("MINCOST");
 		DecisionEngine decisionEngine = new DecisionEngine(labelProbabilityDistributionCalculator, null, objectLabelDecisionAlgorithm);
 		
-		Collection<CorrectLabel> goldLabels = ds.getGoldDatums();
+		Collection<CorrectLabel> goldLabels = ds.getEvaluationDatums();
 		double avgClassificationCost = 0.0;
 		
 		//compute the evaluated misclassification cost for each gold label
@@ -292,7 +331,7 @@ public class Tests {
 		IObjectLabelDecisionAlgorithm objectLabelDecisionAlgorithm = ObjectLabelDecisionAlgorithms.get("MINCOST");
 		DecisionEngine decisionEngine = new DecisionEngine(labelProbabilityDistributionCalculator, null, objectLabelDecisionAlgorithm);
 		
-		Collection<CorrectLabel> goldLabels = ds.getGoldDatums();
+		Collection<CorrectLabel> goldLabels = ds.getEvaluationDatums();
 		double avgClassificationCost = 0.0;
 		
 		//compute the evaluated misclassification cost for each gold label
@@ -306,5 +345,17 @@ public class Tests {
 		String actualClassificationCost = testHelper.format(avgClassificationCost);
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Eval_MV_Min," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
+	}	
+	
+	@Test
+	@Ignore
+	public void testSummaryFile_DataCost_Eval_DS_Soft() {	
+		
+	}	
+	
+	@Test
+	@Ignore
+	public void testSummaryFile_DataCost_Eval_MV_Soft() {	
+		
 	}	
 }
