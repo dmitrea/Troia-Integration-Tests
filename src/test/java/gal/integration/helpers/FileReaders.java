@@ -1,4 +1,4 @@
-package gal.integration.helpers;
+package test.java.gal.integration.helpers;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.StringTokenizer;
-
 import com.datascience.gal.MisclassificationCost;
 
 public class FileReaders {

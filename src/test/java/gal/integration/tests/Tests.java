@@ -1,19 +1,12 @@
-package gal.integration.tests;
+package test.java.gal.integration.tests;
 
 import static org.junit.Assert.assertEquals;
-
-import gal.integration.helpers.FileWriters;
-import gal.integration.helpers.SummaryResultsParser;
-import gal.integration.helpers.TestHelpers;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-
 import org.junit.Ignore;
 import org.junit.Test;
-
+import test.java.gal.integration.helpers.*;
 import com.datascience.gal.AbstractDawidSkene;
 import com.datascience.gal.CorrectLabel;
 import com.datascience.gal.Datum;
@@ -161,7 +154,7 @@ public class Tests {
 			String expectedCategoryProbability = data.get(metricName);
 			String actualCategoryProbability = testHelper.format(categoryProbabilities.get(categoryName));
 			fileWriter.writeToFile(TEST_RESULTS_FILE, "[MV_Pr[" + categoryName + "]]," + expectedCategoryProbability + "," + actualCategoryProbability);
-			//assertEquals(expectedCategoryProbability, actualCategoryProbability);
+			assertEquals(expectedCategoryProbability, actualCategoryProbability);
 		}	
 	}
 	

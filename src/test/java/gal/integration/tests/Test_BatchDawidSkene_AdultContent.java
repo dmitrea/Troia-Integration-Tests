@@ -1,15 +1,15 @@
-package gal.integration.tests;
-import gal.integration.helpers.*;
+package test.java.gal.integration.tests;
 
+import test.java.gal.integration.helpers.*;
 import java.util.Collection;
 import java.util.HashSet;
 import org.junit.BeforeClass;
 import com.datascience.gal.*;
 
-public class BatchDawidSkeneTests_AdultContent extends Tests{
+public class Test_BatchDawidSkene_AdultContent extends Tests{
 	
-	public static String TESTDATA_BASEDIR = System.getProperty("user.dir").concat("//src//gal//integration//datasets//");
-	public static String RESULTS_BASEDIR = System.getProperty("user.dir").concat("//src//gal//integration//results//");
+	public static String TESTDATA_BASEDIR = System.getProperty("user.dir").concat("//src//test//java//gal//integration//datasets//");
+	public static String RESULTS_BASEDIR = System.getProperty("user.dir").concat("//results//");
 	public static String TEST_DIR = "AdultContent";
 	
 	public static String inputDir 	= TESTDATA_BASEDIR + TEST_DIR + "//input//";
