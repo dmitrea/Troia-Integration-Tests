@@ -314,15 +314,51 @@ public class BaseScenarios {
 	}
 	
 	@Test
-	@Ignore
 	public void test_DataCost_Estm_NoVote_Exp() {	
+		HashMap<String, String> data = summaryResultsParser.getDataQuality();
+		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("NOVOTE");
+		ILabelProbabilityDistributionCostCalculator	labelProbabilityDistributionCostCalculator = LabelProbabilityDistributionCostCalculators.get("EXPECTEDCOST");
+		DecisionEngine decisionEngine = new DecisionEngine(labelProbabilityDistributionCalculator, labelProbabilityDistributionCostCalculator, null);
 		
+		Map<String, Datum> objects = ds.getObjects();
+		double avgClassificationCost = 0.0;
+		
+		//compute the estimated misclassification cost for each object, using MV
+		for (Map.Entry<String, Datum> object : objects.entrySet()) { 
+			Datum datum = object.getValue();
+			avgClassificationCost += decisionEngine.estimateMissclassificationCost(ds, datum);
+		}
+		
+		//calculate the average
+		avgClassificationCost = avgClassificationCost/objects.size();
+		String expectedClassificationCost = data.get("[DataCost_Estm_NoVote_Exp] Baseline classification cost (random spammer)");
+		String actualClassificationCost = testHelper.format(avgClassificationCost);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Estm_NoVote_Exp," + expectedClassificationCost + "," + actualClassificationCost);
+		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
 	@Test
-	@Ignore
 	public void test_DataCost_Estm_NoVote_Min() {	
+		HashMap<String, String> data = summaryResultsParser.getDataQuality();
+		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("NOVOTE");
+		ILabelProbabilityDistributionCostCalculator	labelProbabilityDistributionCostCalculator = LabelProbabilityDistributionCostCalculators.get("MINCOST");
+		DecisionEngine decisionEngine = new DecisionEngine(labelProbabilityDistributionCalculator, labelProbabilityDistributionCostCalculator, null);
 		
+		Map<String, Datum> objects = ds.getObjects();
+		double avgClassificationCost = 0.0;
+		
+		//compute the estimated misclassification cost for each object, using MV
+		for (Map.Entry<String, Datum> object : objects.entrySet()) { 
+			Datum datum = object.getValue();
+			avgClassificationCost += decisionEngine.estimateMissclassificationCost(ds, datum);
+		}
+		
+		//calculate the average
+		avgClassificationCost = avgClassificationCost/objects.size();
+		String expectedClassificationCost = data.get("[DataCost_Estm_NoVote_Min] Baseline classification cost (strategic spammer)");
+		String actualClassificationCost = testHelper.format(avgClassificationCost);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Estm_NoVote_Min," + expectedClassificationCost + "," + actualClassificationCost);
+		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
 	@Test
