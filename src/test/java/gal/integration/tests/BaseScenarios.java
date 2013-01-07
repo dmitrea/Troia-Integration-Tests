@@ -9,6 +9,7 @@ import java.util.Map;
 import org.junit.Ignore;
 import org.junit.Test;
 import test.java.gal.integration.helpers.*;
+
 import com.datascience.gal.AbstractDawidSkene;
 import com.datascience.gal.CorrectLabel;
 import com.datascience.gal.Datum;
@@ -215,15 +216,52 @@ public class BaseScenarios {
 	}	
 	
 	@Test
-	@Ignore
 	public void test_DataCost_Estm_DS_ML() {	
+		HashMap<String, String> data = summaryResultsParser.getDataQuality();
+		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("DS");
+		ILabelProbabilityDistributionCostCalculator	labelProbabilityDistributionCostCalculator = LabelProbabilityDistributionCostCalculators.get("MAXLIKELIHOOD");
+		DecisionEngine decisionEngine = new DecisionEngine(labelProbabilityDistributionCalculator, labelProbabilityDistributionCostCalculator, null);
+
+		Map<String, Datum> objects = ds.getObjects();
+		double avgClassificationCost = 0.0;
+		
+		//compute the estimated misclassification cost for each object, using MV
+		for (Map.Entry<String, Datum> object : objects.entrySet()) { 
+			Datum datum = object.getValue();
+			avgClassificationCost += decisionEngine.estimateMissclassificationCost(ds, datum);
+		}
+		
+		//calculate the average
+		avgClassificationCost = avgClassificationCost/objects.size();
+		String expectedClassificationCost = data.get("[DataCost_Estm_DS_ML] Estimated classification cost (DS_ML metric)");
+		String actualClassificationCost = testHelper.format(avgClassificationCost);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Estm_DS_ML," + expectedClassificationCost + "," + actualClassificationCost);
+		assertEquals(expectedClassificationCost, actualClassificationCost);
 		
 	}	
 	
 	@Test
-	@Ignore
 	public void test_DataCost_Estm_MV_ML() {	
+		HashMap<String, String> data = summaryResultsParser.getDataQuality();
+		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("MV");
+		ILabelProbabilityDistributionCostCalculator	labelProbabilityDistributionCostCalculator = LabelProbabilityDistributionCostCalculators.get("MAXLIKELIHOOD");
+		DecisionEngine decisionEngine = new DecisionEngine(labelProbabilityDistributionCalculator, labelProbabilityDistributionCostCalculator, null);
+
+		Map<String, Datum> objects = ds.getObjects();
+		double avgClassificationCost = 0.0;
 		
+		//compute the estimated misclassification cost for each object, using MV
+		for (Map.Entry<String, Datum> object : objects.entrySet()) { 
+			Datum datum = object.getValue();
+			avgClassificationCost += decisionEngine.estimateMissclassificationCost(ds, datum);
+		}
+		
+		//calculate the average
+		avgClassificationCost = avgClassificationCost/objects.size();
+		String expectedClassificationCost = data.get("[DataCost_Estm_MV_ML] Estimated classification cost (MV_ML metric)");
+		String actualClassificationCost = testHelper.format(avgClassificationCost);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Estm_MV_ML," + expectedClassificationCost + "," + actualClassificationCost);
+		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
 	
