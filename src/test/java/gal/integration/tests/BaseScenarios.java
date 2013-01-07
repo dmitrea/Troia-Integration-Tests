@@ -12,7 +12,7 @@ import com.datascience.gal.CorrectLabel;
 import com.datascience.gal.Datum;
 import com.datascience.gal.decision.*;
 
-public class Tests {
+public class BaseScenarios {
 
 	public static int NO_ITERATIONS = 50;
 	public static String SUMMARY_FILE;
@@ -23,19 +23,19 @@ public class Tests {
 	public static SummaryResultsParser summaryResultsParser;
 	
 	
-	public static class TestSetup{
+	public static class Setup{
 		public AbstractDawidSkene abstractDS;
 		public String summaryResultsFile;
 		public String testResultsFile;
 		
-		public TestSetup(AbstractDawidSkene ds, String summaryFile, String resultsFile) {
+		public Setup(AbstractDawidSkene ds, String summaryFile, String resultsFile) {
 			abstractDS = ds;
 			summaryResultsFile = summaryFile;
 			testResultsFile = resultsFile;
 		}		
 	}
 	
-	public static void initSetup(TestSetup testSetup){
+	public static void initSetup(Setup testSetup){
 		ds = testSetup.abstractDS;
 		ds.estimate(NO_ITERATIONS);
 		SUMMARY_FILE = testSetup.summaryResultsFile;
@@ -116,7 +116,7 @@ public class Tests {
 			String expectedCategoryProbability = data.get(metricName);
 			String actualCategoryProbability = testHelper.format(categoryProbabilities.get(categoryName));
 			fileWriter.writeToFile(TEST_RESULTS_FILE, "[DS_Pr[" + categoryName + "]]," + expectedCategoryProbability + "," + actualCategoryProbability);
-			//assertEquals(expectedCategoryProbability, actualCategoryProbability);
+			assertEquals(expectedCategoryProbability, actualCategoryProbability);
 		}	
 	}
 	

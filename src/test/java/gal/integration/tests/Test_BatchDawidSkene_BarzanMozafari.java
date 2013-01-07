@@ -6,7 +6,7 @@ import java.util.HashSet;
 import org.junit.BeforeClass;
 import com.datascience.gal.*;
 
-public class Test_BatchDawidSkene_BarzanMozafari extends Tests{
+public class Test_BatchDawidSkene_BarzanMozafari extends BaseScenarios{
 	
 	public static String TESTDATA_BASEDIR = System.getProperty("user.dir").concat("//src//test//java//gal//integration//datasets//");
 	public static String RESULTS_BASEDIR = System.getProperty("user.dir").concat("//results//");
@@ -34,7 +34,7 @@ public class Test_BatchDawidSkene_BarzanMozafari extends Tests{
 	static SummaryResultsParser summaryResultsParser;
 	static FileWriters fileWriter;
 	
-	static Tests.TestSetup testSetup;
+	static BaseScenarios.Setup testSetup;
 	
 	@BeforeClass
 	public static void setupTests(){
@@ -61,7 +61,7 @@ public class Test_BatchDawidSkene_BarzanMozafari extends Tests{
 		
 		//ds.addEvaluationDatums(testHelper.LoadEvaluationLabels(evaluationLabelsFileName));
 		//init the test setup
-		testSetup = new Tests.TestSetup(ds, SUMMARY_FILE, TEST_RESULTS_FILE); 
+		testSetup = new BaseScenarios.Setup(ds, SUMMARY_FILE, TEST_RESULTS_FILE); 
 		initSetup(testSetup);
 	}
 
