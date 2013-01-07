@@ -38,7 +38,7 @@
 				<version>2.4.3</version>
 				<configuration>
 					<excludes>
-						<exclude>**/Tests.java</exclude>
+						<exclude>**/TestHelpers.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
