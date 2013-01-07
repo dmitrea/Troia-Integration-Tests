@@ -1,6 +1,8 @@
 package test.java.gal.integration.tests;
 
 import static org.junit.Assert.assertEquals;
+
+import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +23,7 @@ public class BaseScenarios {
 	public static FileWriters fileWriter;
 	public static TestHelpers testHelper;
 	public static SummaryResultsParser summaryResultsParser;
+	public static NumberFormat percentFormat;
 	
 	
 	public static class Setup{
@@ -42,6 +45,9 @@ public class BaseScenarios {
 		TEST_RESULTS_FILE = testSetup.testResultsFile;
 		
 		testHelper = new TestHelpers();
+		percentFormat = NumberFormat.getPercentInstance();
+		percentFormat.setMinimumFractionDigits(2);
+		percentFormat.setMaximumFractionDigits(2);
 
 		//prepare the test results file
 		fileWriter = new FileWriters();
@@ -350,5 +356,29 @@ public class BaseScenarios {
 	@Ignore
 	public void test_DataCost_Eval_MV_Soft() {	
 		
+	}	
+	
+	@Test
+	public void test_DataQuality_Estm_DS_ML() {	
+		HashMap<String, String> data = summaryResultsParser.getDataQuality();
+		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("DS");
+		ILabelProbabilityDistributionCostCalculator	labelProbabilityDistributionCostCalculator = LabelProbabilityDistributionCostCalculators.get("MAXLIKELIHOOD");
+		DecisionEngine decisionEngine = new DecisionEngine(labelProbabilityDistributionCalculator, labelProbabilityDistributionCostCalculator, null);
+		
+		Map<String, Datum> objects = ds.getObjects();
+		double avgQuality = 0.0;
+		
+		//compute the estimated misclassification cost for each object, using MV
+		for (Map.Entry<String, Datum> object : objects.entrySet()) { 
+			Datum datum = object.getValue();
+			avgQuality += decisionEngine.costToQuality(ds, decisionEngine.estimateMissclassificationCost(ds, datum));
+		}
+		
+		//calculate the average
+		avgQuality /= objects.size();
+		String expectedClassificationCost = data.get("[DataQuality_Estm_DS_ML] Estimated data quality, EM algorithm, maximum likelihood");
+		String actualClassificationCost = percentFormat.format(avgQuality);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Estm_DS_ML," + expectedClassificationCost + "," + actualClassificationCost);
+		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 }
