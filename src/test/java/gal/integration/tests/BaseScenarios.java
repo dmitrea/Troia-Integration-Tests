@@ -335,15 +335,32 @@ public class BaseScenarios {
 	}	
 	
 	@Test
-	@Ignore
 	public void test_DataCost_Eval_DS_ML() {	
+		HashMap<String, String> data = summaryResultsParser.getDataQuality();
+		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("DS");
+		IObjectLabelDecisionAlgorithm objectLabelDecisionAlgorithm = ObjectLabelDecisionAlgorithms.get("MAXLIKELIHOOD");
 		
+		double avgClassificationCost = evaluateMissclassificationCost(ds, labelProbabilityDistributionCalculator, null, objectLabelDecisionAlgorithm);
+		
+		String expectedClassificationCost = data.get("[DataCost_Eval_DS_ML] Actual classification cost for EM, maximum likelihood classification");
+		String actualClassificationCost = testHelper.format(avgClassificationCost);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Eval_DS_ML," + expectedClassificationCost + "," + actualClassificationCost);
+		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
+	
 	@Test
-	@Ignore
 	public void test_DataCost_Eval_MV_ML() {	
+		HashMap<String, String> data = summaryResultsParser.getDataQuality();
+		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("MV");
+		IObjectLabelDecisionAlgorithm objectLabelDecisionAlgorithm = ObjectLabelDecisionAlgorithms.get("MAXLIKELIHOOD");
 		
+		double avgClassificationCost = evaluateMissclassificationCost(ds, labelProbabilityDistributionCalculator, null, objectLabelDecisionAlgorithm);
+		
+		String expectedClassificationCost = data.get("[DataCost_Eval_MV_ML] Actual classification cost for majority vote classification");
+		String actualClassificationCost = testHelper.format(avgClassificationCost);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Eval_MV_ML," + expectedClassificationCost + "," + actualClassificationCost);
+		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
 	
