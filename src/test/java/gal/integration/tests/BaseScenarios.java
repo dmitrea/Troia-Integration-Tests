@@ -1,21 +1,19 @@
 package test.java.gal.integration.tests;
 
 import static org.junit.Assert.assertEquals;
-
-import java.text.NumberFormat;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Ignore;
 import org.junit.Test;
 import test.java.gal.integration.helpers.*;
 
 import com.datascience.gal.AbstractDawidSkene;
 import com.datascience.gal.CorrectLabel;
 import com.datascience.gal.Datum;
+import com.datascience.gal.Worker;
 import com.datascience.gal.decision.*;
 import com.datascience.gal.Quality;
 import com.datascience.gal.evaluation.DataEvaluator;
+import com.datascience.gal.evaluation.WorkerEvaluator;
 
 public class BaseScenarios {
 
@@ -131,6 +129,34 @@ public class BaseScenarios {
 		//calculate the average
 		avgQuality /= costQuality.size();
 		return avgQuality;
+	}
+	
+	public double estimateWorkerQuality(AbstractDawidSkene ds, ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator, ILabelProbabilityDistributionCostCalculator labelProbabilityDistributionCostCalculator, IObjectLabelDecisionAlgorithm objectLabelDecisionAlgorithm) 
+	{
+		return 1;
+	}
+	
+	public double evaluateWorkerQuality(AbstractDawidSkene ds, String method) 
+	{
+		ILabelProbabilityDistributionCostCalculator labelProbabilityDistributionCostCalculator = LabelProbabilityDistributionCostCalculators.get(method);
+		WorkerEvaluator workerEvaluator = new WorkerEvaluator(labelProbabilityDistributionCostCalculator);
+		Map<String, Double> result = new HashMap<String, Double>();
+		for (Worker w : ds.getWorkers()){
+			result.put(w.getName(), workerEvaluator.getCost(ds, w));
+		}
+		Map <String, Double> workersQuality = Quality.fromCosts(ds, result);
+		double avgQuality = 0.0;
+		
+		//compute the estimated quality cost for each object, using MV
+		for (Map.Entry<String, Double> workerQuality : workersQuality.entrySet()) { 
+			avgQuality += workerQuality.getValue();
+		}
+		
+		//calculate the average
+		avgQuality /= workersQuality.size();
+		return avgQuality;
+		
+		
 	}
 	
 	@Test
@@ -575,7 +601,6 @@ public class BaseScenarios {
 	public void test_DataQuality_Eval_DS_Soft() {	
 		HashMap<String, String> data = summaryResultsParser.getDataQuality();
 		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("DS");
-		
 		double avgQuality =  evaluateCostToQuality(ds, "SOFT", labelProbabilityDistributionCalculator);
 		
 		String expectedClassificationCost = data.get("[DataQuality_Eval_DS_Soft] Actual data quality, EM algorithm, soft label");
@@ -588,7 +613,6 @@ public class BaseScenarios {
 	public void test_DataQuality_Eval_MV_Soft() {	
 		HashMap<String, String> data = summaryResultsParser.getDataQuality();
 		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("MV");
-		
 		double avgQuality =  evaluateCostToQuality(ds, "SOFT", labelProbabilityDistributionCalculator);
 		
 		String expectedClassificationCost = data.get("[DataQuality_Eval_MV_Soft] Actual data quality, naive soft label");
@@ -603,7 +627,33 @@ public class BaseScenarios {
 		
 	}
 	
+	@Test
+	public void test_WorkerQuality_Estm_DS_ML_n() {
+	}
 	
+	@Test
+	public void test_WorkerQuality_Estm_DS_Min_n() {
+	}
+
+
+	@Test
+	public void test_WorkerQuality_Eval_DS_Exp_n() {
+		HashMap<String, String> data = summaryResultsParser.getWorkerQuality();
+		double avgQuality =  evaluateWorkerQuality(ds, "EXPECTEDCOST");
+		
+		String expectedQuality = data.get("[WorkerQuality_Eval_DS_Exp_n] Actual worker quality (non-weighted, DS_Exp metric)");
+		String actualQuality = testHelper.formatPercent(avgQuality);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Eval_DS_Exp_n," + expectedQuality + "," + actualQuality);
+		assertEquals(expectedQuality, actualQuality);
+		
+	}
+
 	
+	@Test
+	public void test_WorkerQuality_Eval_DS_ML_n() {
+	}
 	
+	@Test
+	public void test_WorkerQuality_Eval_DS_Min_n() {
+	}
 }
