@@ -82,12 +82,12 @@ public class BaseScenarios {
 	{
 		DataEvaluator dataEvaluator = new DataEvaluator(labelProbabilityDistributionCalculator);
 		
-		Collection<CorrectLabel> goldLabels = ds.getEvaluationDatums();
+		Map <String, CorrectLabel> goldLabels = ds.getEvaluationDatums();
 		double avgClassificationCost = 0.0;
 		
-		//compute the evaluated misclassification cost for each gold label - TBD - ask Konrad
-		for (CorrectLabel goldLabel : goldLabels) { 
-			avgClassificationCost += dataEvaluator.evaluate(ds, goldLabel);
+		//compute the evaluated misclassification cost for each gold label
+		for ( Map.Entry<String, CorrectLabel> goldLabel : goldLabels.entrySet()) { 
+			avgClassificationCost += dataEvaluator.evaluate(ds, goldLabel.getValue());
 		}
 		
 		//calculate the average
