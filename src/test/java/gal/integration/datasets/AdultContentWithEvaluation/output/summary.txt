@@ -3,10 +3,10 @@
 =============================================================
 
 === Parameters ===
-Input File: data/AdultContent/test-unlabeled.txt
-Categories File: data/AdultContent/test-categories.txt
-Gold Labels File: data/AdultContent/test-labeled.txt
-Cost File: data/AdultContent/test-costs.txt
+Input File: c:\troia\get-another-label\bin\AdultContent\input.txt
+Categories File: c:\troia\get-another-label\bin\AdultContent\categories.txt
+Gold Labels File: c:\troia\get-another-label\bin\AdultContent\correct.txt
+Cost File: c:\troia\get-another-label\bin\AdultContent\costs.txt
 Evaluation File: N/A
 
 === Data ===

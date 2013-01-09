@@ -82,16 +82,16 @@ public class BaseScenarios {
 	{
 		DataEvaluator dataEvaluator = DataEvaluator.get (labelChoosingMethod, labelProbabilityDistributionCalculator);
 		
-		Map <String, CorrectLabel> goldLabels = ds.getEvaluationDatums();
+		Map <String, CorrectLabel> evaluationData = ds.getEvaluationDatums();
 		double avgClassificationCost = 0.0;
 		
-		//compute the evaluated misclassification cost for each gold label
-		for ( Map.Entry<String, CorrectLabel> goldLabel : goldLabels.entrySet()) { 
-			avgClassificationCost += dataEvaluator.evaluate(ds, goldLabel.getValue());
+		//compute the evaluated misclassification cost for each evaluation datum
+		for ( Map.Entry<String, CorrectLabel> evaluationDatum : evaluationData.entrySet()) { 
+			avgClassificationCost += dataEvaluator.evaluate(ds, evaluationDatum.getValue());
 		}
 		
 		//calculate the average
-		avgClassificationCost = avgClassificationCost/goldLabels.size();
+		avgClassificationCost = avgClassificationCost/evaluationData.size();
 		return avgClassificationCost;
 	}
 	
@@ -117,12 +117,12 @@ public class BaseScenarios {
 	{
 		DataEvaluator dataEvaluator = DataEvaluator.get (labelChoosingMethod, labelProbabilityDistributionCalculator);
 		
-		Map <String, CorrectLabel> goldLabels = ds.getEvaluationDatums();
+		Map <String, CorrectLabel> evaluationData = ds.getEvaluationDatums();
 		Map <String, Double> qualityCosts = new HashMap<String, Double>();
 		
-		//compute the evaluated misclassification cost for each gold label
-		for ( Map.Entry<String, CorrectLabel> goldLabel : goldLabels.entrySet()) { 
-			qualityCosts.put(goldLabel.getKey(), dataEvaluator.evaluate(ds, goldLabel.getValue()));
+		//compute the evaluated misclassification cost for each evaluation datum
+		for ( Map.Entry<String, CorrectLabel> evaluationDatum : evaluationData.entrySet()) { 
+			qualityCosts.put(evaluationDatum.getKey(), dataEvaluator.evaluate(ds, evaluationDatum.getValue()));
 		}
 		
 		Map <String, Double> costQuality = Quality.fromCosts(ds, qualityCosts);
@@ -536,5 +536,79 @@ public class BaseScenarios {
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Eval_DS_ML," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
+	
+	@Test
+	public void test_DataQuality_Eval_MV_ML() {	
+		HashMap<String, String> data = summaryResultsParser.getDataQuality();
+		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("MV");
+		
+		double avgQuality =  evaluateCostToQuality(ds, "MAXLIKELIHOOD", labelProbabilityDistributionCalculator);
+		
+		String expectedClassificationCost = data.get("[DataQuality_Eval_MV_ML] Actual data quality, naive majority label");
+		String actualClassificationCost = percentFormat.format(avgQuality);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Eval_MV_ML," + expectedClassificationCost + "," + actualClassificationCost);
+		assertEquals(expectedClassificationCost, actualClassificationCost);
+	}
+	
+	@Test
+	public void test_DataQuality_Eval_DS_Min() {	
+		HashMap<String, String> data = summaryResultsParser.getDataQuality();
+		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("DS");
+		
+		double avgQuality =  evaluateCostToQuality(ds, "MINCOST", labelProbabilityDistributionCalculator);
+		
+		String expectedClassificationCost = data.get("[DataQuality_Eval_DS_Min] Actual data quality, EM algorithm, mincost");
+		String actualClassificationCost = percentFormat.format(avgQuality);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Eval_DS_Min," + expectedClassificationCost + "," + actualClassificationCost);
+		assertEquals(expectedClassificationCost, actualClassificationCost);
+	}
+	
+	@Test
+	public void test_DataQuality_Eval_MV_Min() {	
+		HashMap<String, String> data = summaryResultsParser.getDataQuality();
+		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("MV");
+		
+		double avgQuality =  evaluateCostToQuality(ds, "MINCOST", labelProbabilityDistributionCalculator);
+		
+		String expectedClassificationCost = data.get("[DataQuality_Eval_MV_Min] Actual data quality, naive mincost label");
+		String actualClassificationCost = percentFormat.format(avgQuality);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Eval_MV_Min," + expectedClassificationCost + "," + actualClassificationCost);
+		assertEquals(expectedClassificationCost, actualClassificationCost);
+	}
+	
+	@Test
+	public void test_DataQuality_Eval_DS_Soft() {	
+		HashMap<String, String> data = summaryResultsParser.getDataQuality();
+		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("DS");
+		
+		double avgQuality =  evaluateCostToQuality(ds, "SOFT", labelProbabilityDistributionCalculator);
+		
+		String expectedClassificationCost = data.get("[DataQuality_Eval_DS_Soft] Actual data quality, EM algorithm, soft label");
+		String actualClassificationCost = percentFormat.format(avgQuality);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Eval_DS_Soft," + expectedClassificationCost + "," + actualClassificationCost);
+		assertEquals(expectedClassificationCost, actualClassificationCost);
+	}
+	
+	@Test
+	public void test_DataQuality_Eval_MV_Soft() {	
+		HashMap<String, String> data = summaryResultsParser.getDataQuality();
+		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("MV");
+		
+		double avgQuality =  evaluateCostToQuality(ds, "SOFT", labelProbabilityDistributionCalculator);
+		
+		String expectedClassificationCost = data.get("[DataQuality_Eval_MV_Soft] Actual data quality, naive soft label");
+		String actualClassificationCost = percentFormat.format(avgQuality);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Eval_MV_Soft," + expectedClassificationCost + "," + actualClassificationCost);
+		assertEquals(expectedClassificationCost, actualClassificationCost);
+	}
+	
+	
+	@Test
+	public void test_WorkerQuality_Estm_DS_Exp_n() {
+		
+	}
+	
+	
+	
 	
 }
