@@ -14,6 +14,8 @@ import com.datascience.gal.AbstractDawidSkene;
 import com.datascience.gal.CorrectLabel;
 import com.datascience.gal.Datum;
 import com.datascience.gal.decision.*;
+import com.datascience.gal.Quality;
+import com.datascience.gal.evaluation.DataEvaluator;
 
 public class BaseScenarios {
 
@@ -76,16 +78,16 @@ public class BaseScenarios {
 		return avgClassificationCost;
 	}
 	
-	public double evaluateMissclassificationCost(AbstractDawidSkene ds, ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator, ILabelProbabilityDistributionCostCalculator labelProbabilityDistributionCostCalculator, IObjectLabelDecisionAlgorithm objectLabelDecisionAlgorithm) 
+	public double evaluateMissclassificationCost(AbstractDawidSkene ds, ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator) 
 	{
-		DecisionEngine decisionEngine = new DecisionEngine(labelProbabilityDistributionCalculator, null, objectLabelDecisionAlgorithm);
+		DataEvaluator dataEvaluator = new DataEvaluator(labelProbabilityDistributionCalculator);
 		
 		Collection<CorrectLabel> goldLabels = ds.getEvaluationDatums();
 		double avgClassificationCost = 0.0;
 		
-		//compute the evaluated misclassification cost for each gold label
+		//compute the evaluated misclassification cost for each gold label - TBD - ask Konrad
 		for (CorrectLabel goldLabel : goldLabels) { 
-			avgClassificationCost += decisionEngine.evaluateMissclassificationCost(ds, goldLabel);
+			avgClassificationCost += dataEvaluator.evaluate(ds, goldLabel);
 		}
 		
 		//calculate the average
@@ -101,7 +103,7 @@ public class BaseScenarios {
 		Map<String, Datum> objects = ds.getObjects();
 		double avgQuality = 0.0;
 		
-		//compute the estimated misclassification cost for each object, using MV
+		//compute the estimated quality cost for each object, using MV
 		for (Map.Entry<String, Datum> object : objects.entrySet()) { 
 			Datum datum = object.getValue();
 			avgQuality += decisionEngine.costToQuality(ds, decisionEngine.estimateMissclassificationCost(ds, datum));
