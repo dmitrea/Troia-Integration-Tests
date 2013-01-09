@@ -113,6 +113,31 @@ public class BaseScenarios {
 		return avgQuality;
 	}
 	
+	public double evaluateCostToQuality(AbstractDawidSkene ds, String labelChoosingMethod, ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator) 
+	{
+		DataEvaluator dataEvaluator = DataEvaluator.get (labelChoosingMethod, labelProbabilityDistributionCalculator);
+		
+		Map <String, CorrectLabel> goldLabels = ds.getEvaluationDatums();
+		Map <String, Double> qualityCosts = new HashMap<String, Double>();
+		
+		//compute the evaluated misclassification cost for each gold label
+		for ( Map.Entry<String, CorrectLabel> goldLabel : goldLabels.entrySet()) { 
+			qualityCosts.put(goldLabel.getKey(), dataEvaluator.evaluate(ds, goldLabel.getValue()));
+		}
+		
+		Map <String, Double> costQuality = Quality.fromCosts(ds, qualityCosts);
+		double avgQuality = 0.0;
+		
+		//compute the estimated quality cost for each object, using MV
+		for (Map.Entry<String, Double> cQuality : costQuality.entrySet()) { 
+			avgQuality += cQuality.getValue();
+		}
+		
+		//calculate the average
+		avgQuality /= costQuality.size();
+		return avgQuality;
+	}
+	
 	@Test
 	public void test_Data() {	
 		HashMap<String, String> data = summaryResultsParser.getData();
@@ -496,6 +521,19 @@ public class BaseScenarios {
 		String expectedClassificationCost = data.get("[DataQuality_Estm_MV_Min] Estimated data quality, naive mincost label");
 		String actualClassificationCost = percentFormat.format(avgQuality);
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Estm_MV_Min," + expectedClassificationCost + "," + actualClassificationCost);
+		assertEquals(expectedClassificationCost, actualClassificationCost);
+	}
+	
+	@Test
+	public void test_DataQuality_Eval_DS_ML() {	
+		HashMap<String, String> data = summaryResultsParser.getDataQuality();
+		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("DS");
+		
+		double avgQuality =  evaluateCostToQuality(ds, "MAXLIKELIHOOD", labelProbabilityDistributionCalculator);
+		
+		String expectedClassificationCost = data.get("[DataQuality_Eval_DS_ML] Actual data quality, EM algorithm, maximum likelihood");
+		String actualClassificationCost = percentFormat.format(avgQuality);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Eval_DS_ML," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
 	
