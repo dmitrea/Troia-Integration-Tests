@@ -26,8 +26,6 @@ public class BaseScenarios {
 	public static FileWriters fileWriter;
 	public static TestHelpers testHelper;
 	public static SummaryResultsParser summaryResultsParser;
-	public static NumberFormat percentFormat;
-	
 	
 	public static class Setup{
 		public AbstractDawidSkene abstractDS;
@@ -48,9 +46,6 @@ public class BaseScenarios {
 		TEST_RESULTS_FILE = testSetup.testResultsFile;
 		
 		testHelper = new TestHelpers();
-		percentFormat = NumberFormat.getPercentInstance();
-		percentFormat.setMinimumFractionDigits(2);
-		percentFormat.setMaximumFractionDigits(2);
 
 		//prepare the test results file
 		fileWriter = new FileWriters();
@@ -449,7 +444,7 @@ public class BaseScenarios {
 		double avgQuality =  estimateCostToQuality(ds, labelProbabilityDistributionCalculator, labelProbabilityDistributionCostCalculator, null);
 		
 		String expectedClassificationCost = data.get("[DataQuality_Estm_DS_ML] Estimated data quality, EM algorithm, maximum likelihood");
-		String actualClassificationCost = percentFormat.format(avgQuality);
+		String actualClassificationCost = testHelper.formatPercent(avgQuality);
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Estm_DS_ML," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
@@ -463,7 +458,7 @@ public class BaseScenarios {
 		double avgQuality =  estimateCostToQuality(ds, labelProbabilityDistributionCalculator, labelProbabilityDistributionCostCalculator, null);
 		
 		String expectedClassificationCost = data.get("[DataQuality_Estm_MV_ML] Estimated data quality, naive majority label");
-		String actualClassificationCost = percentFormat.format(avgQuality);
+		String actualClassificationCost = testHelper.formatPercent(avgQuality);
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Estm_MV_ML," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
@@ -477,7 +472,7 @@ public class BaseScenarios {
 		double avgQuality =  estimateCostToQuality(ds, labelProbabilityDistributionCalculator, labelProbabilityDistributionCostCalculator, null);
 		
 		String expectedClassificationCost = data.get("[DataQuality_Estm_DS_Exp] Estimated data quality, EM algorithm, soft label");
-		String actualClassificationCost = percentFormat.format(avgQuality);
+		String actualClassificationCost = testHelper.formatPercent(avgQuality);
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Estm_DS_Exp," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
@@ -491,7 +486,7 @@ public class BaseScenarios {
 		double avgQuality =  estimateCostToQuality(ds, labelProbabilityDistributionCalculator, labelProbabilityDistributionCostCalculator, null);
 		
 		String expectedClassificationCost = data.get("[DataQuality_Estm_MV_Exp] Estimated data quality, naive soft label");
-		String actualClassificationCost = percentFormat.format(avgQuality);
+		String actualClassificationCost = testHelper.formatPercent(avgQuality);
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Estm_MV_Exp," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
@@ -505,7 +500,7 @@ public class BaseScenarios {
 		double avgQuality =  estimateCostToQuality(ds, labelProbabilityDistributionCalculator, labelProbabilityDistributionCostCalculator, null);
 		
 		String expectedClassificationCost = data.get("[DataQuality_Estm_DS_Min] Estimated data quality, EM algorithm, mincost");
-		String actualClassificationCost = percentFormat.format(avgQuality);
+		String actualClassificationCost = testHelper.formatPercent(avgQuality);
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Estm_DS_Min," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
@@ -519,7 +514,7 @@ public class BaseScenarios {
 		double avgQuality =  estimateCostToQuality(ds, labelProbabilityDistributionCalculator, labelProbabilityDistributionCostCalculator, null);
 		
 		String expectedClassificationCost = data.get("[DataQuality_Estm_MV_Min] Estimated data quality, naive mincost label");
-		String actualClassificationCost = percentFormat.format(avgQuality);
+		String actualClassificationCost = testHelper.formatPercent(avgQuality);
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Estm_MV_Min," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
@@ -532,7 +527,7 @@ public class BaseScenarios {
 		double avgQuality =  evaluateCostToQuality(ds, "MAXLIKELIHOOD", labelProbabilityDistributionCalculator);
 		
 		String expectedClassificationCost = data.get("[DataQuality_Eval_DS_ML] Actual data quality, EM algorithm, maximum likelihood");
-		String actualClassificationCost = percentFormat.format(avgQuality);
+		String actualClassificationCost =  testHelper.formatPercent(avgQuality);
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Eval_DS_ML," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
@@ -545,7 +540,7 @@ public class BaseScenarios {
 		double avgQuality =  evaluateCostToQuality(ds, "MAXLIKELIHOOD", labelProbabilityDistributionCalculator);
 		
 		String expectedClassificationCost = data.get("[DataQuality_Eval_MV_ML] Actual data quality, naive majority label");
-		String actualClassificationCost = percentFormat.format(avgQuality);
+		String actualClassificationCost = testHelper.formatPercent(avgQuality);
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Eval_MV_ML," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
@@ -558,7 +553,7 @@ public class BaseScenarios {
 		double avgQuality =  evaluateCostToQuality(ds, "MINCOST", labelProbabilityDistributionCalculator);
 		
 		String expectedClassificationCost = data.get("[DataQuality_Eval_DS_Min] Actual data quality, EM algorithm, mincost");
-		String actualClassificationCost = percentFormat.format(avgQuality);
+		String actualClassificationCost = testHelper.formatPercent(avgQuality);
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Eval_DS_Min," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
@@ -571,7 +566,7 @@ public class BaseScenarios {
 		double avgQuality =  evaluateCostToQuality(ds, "MINCOST", labelProbabilityDistributionCalculator);
 		
 		String expectedClassificationCost = data.get("[DataQuality_Eval_MV_Min] Actual data quality, naive mincost label");
-		String actualClassificationCost = percentFormat.format(avgQuality);
+		String actualClassificationCost = testHelper.formatPercent(avgQuality);
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Eval_MV_Min," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
@@ -584,7 +579,7 @@ public class BaseScenarios {
 		double avgQuality =  evaluateCostToQuality(ds, "SOFT", labelProbabilityDistributionCalculator);
 		
 		String expectedClassificationCost = data.get("[DataQuality_Eval_DS_Soft] Actual data quality, EM algorithm, soft label");
-		String actualClassificationCost = percentFormat.format(avgQuality);
+		String actualClassificationCost = testHelper.formatPercent(avgQuality);
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Eval_DS_Soft," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
@@ -597,7 +592,7 @@ public class BaseScenarios {
 		double avgQuality =  evaluateCostToQuality(ds, "SOFT", labelProbabilityDistributionCalculator);
 		
 		String expectedClassificationCost = data.get("[DataQuality_Eval_MV_Soft] Actual data quality, naive soft label");
-		String actualClassificationCost = percentFormat.format(avgQuality);
+		String actualClassificationCost = testHelper.formatPercent(avgQuality);
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Eval_MV_Soft," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}

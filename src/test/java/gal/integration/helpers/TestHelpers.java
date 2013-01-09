@@ -2,6 +2,7 @@ package test.java.gal.integration.helpers;
 
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,6 +32,18 @@ public class TestHelpers {
 		return String.format(Locale.ENGLISH, "%2.4f",bd.doubleValue());
 	}
 	
+	
+	public String formatPercent(Double result) {
+		if (null == result || Double.isNaN(result)){
+			return "N/A";
+		}
+		else{
+			NumberFormat percentFormat = NumberFormat.getPercentInstance();
+			percentFormat.setMinimumFractionDigits(2);
+			percentFormat.setMaximumFractionDigits(2);
+			return percentFormat.format(result);
+		}
+	}
 	/**
 	 * Loads the categories and probabilities from the given file
 	 * @param categoriesFileName

@@ -59,7 +59,6 @@ public class Test_BatchDawidSkene_BarzanMozafari extends BaseScenarios{
 		assignedLabels = testHelper.LoadWorkerAssignedLabels(LABELS_FILE);
 		ds.addAssignedLabels(assignedLabels);
 		
-		//ds.addEvaluationDatums(testHelper.LoadEvaluationLabels(evaluationLabelsFileName));
 		//init the test setup
 		testSetup = new BaseScenarios.Setup(ds, SUMMARY_FILE, TEST_RESULTS_FILE); 
 		initSetup(testSetup);
