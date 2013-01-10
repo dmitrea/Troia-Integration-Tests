@@ -30,6 +30,10 @@ public class FileWriters {
 	public void createNewFile(String filePathString){
 		try{
 			File f = new File(filePathString);
+			
+			//create the parent directory if it doesn't exist
+			new File(f.getParent()).mkdir();
+			
 			if(f.exists()) {
 				f.delete();
 			}
