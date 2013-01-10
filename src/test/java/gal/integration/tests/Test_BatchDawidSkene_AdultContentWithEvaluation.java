@@ -8,22 +8,23 @@ import com.datascience.gal.*;
 
 public class Test_BatchDawidSkene_AdultContentWithEvaluation extends BaseScenarios{
 	
-	public static String TESTDATA_BASEDIR = System.getProperty("user.dir").concat("//src//test//java//gal//integration//datasets//");
-	public static String RESULTS_BASEDIR = System.getProperty("user.dir").concat("//results//");
+	public static String FILEPATH_SEPARATOR = System.getProperty("file.separator");
+	public static String TESTDATA_BASEDIR = TestSettings.TESTDATA_BASEDIR;
+	public static String RESULTS_BASEDIR = TestSettings.RESULTS_BASEDIR;
+	
 	public static String TEST_DIR = "AdultContentWithEvaluation";
-	
-	public static String inputDir 	= TESTDATA_BASEDIR + TEST_DIR + "//input//";
-	public static String outputDir 	= TESTDATA_BASEDIR + TEST_DIR + "//output//";
-	
-	public static String CATEGORIES_FILE 	= inputDir 	+ 	"categories.txt";
-	public static String COSTS_FILE 		= inputDir 	+ 	"costs.txt";
-	public static String GOLDLABELS_FILE 	= inputDir 	+ 	"correct.txt";
-	public static String LABELS_FILE 		= inputDir 	+ 	"input.txt";
-	public static String EVALUATION_FILE 	= inputDir 	+ 	"evaluation.txt";
-	public static String SUMMARY_FILE 		= outputDir +	"summary.txt";
+	public static String INPUT_DIR 	= TESTDATA_BASEDIR + TEST_DIR + FILEPATH_SEPARATOR + "input" + FILEPATH_SEPARATOR;
+	public static String OUTPUT_DIR	= TESTDATA_BASEDIR + TEST_DIR + FILEPATH_SEPARATOR + "output" + FILEPATH_SEPARATOR;
+		
+	public static String CATEGORIES_FILE 	= INPUT_DIR 	+ 	"categories.txt";
+	public static String COSTS_FILE 		= INPUT_DIR 	+ 	"costs.txt";
+	public static String GOLDLABELS_FILE 	= INPUT_DIR 	+ 	"correct.txt";
+	public static String LABELS_FILE 		= INPUT_DIR 	+ 	"input.txt";
+	public static String EVALUATION_FILE 	= INPUT_DIR 	+ 	"evaluation.txt";
+	public static String SUMMARY_FILE 		= OUTPUT_DIR 	+	"summary.txt";
 	
 	//test results file
-	public static String TEST_RESULTS_FILE = RESULTS_BASEDIR + "//Results_AdultContentWithEvaluation.csv";
+	public static String TEST_RESULTS_FILE = RESULTS_BASEDIR + "Results_AdultContentWithEvaluation.csv";
 	public static String PROJECT_ID = "12345";
 	
 	static Collection<Category> categories;
