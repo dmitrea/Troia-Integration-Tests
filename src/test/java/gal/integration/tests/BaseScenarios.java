@@ -1,8 +1,12 @@
 package test.java.gal.integration.tests;
 
 import static org.junit.Assert.assertEquals;
+
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.junit.Ignore;
 import org.junit.Test;
 import test.java.gal.integration.helpers.*;
 
@@ -705,4 +709,40 @@ public class BaseScenarios {
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Eval_DS_Min_n," + expectedQuality + "," + actualQuality);
 		assertEquals(expectedQuality, actualQuality);
 	}
+	
+	@Test
+	public void test_LabelsPerWorker() {
+		HashMap<String, String> data = summaryResultsParser.getWorkerQuality();
+
+		int noAssignedLabels = 0;
+		Map <String, Datum> objects = ds.getObjects();
+		for (Datum datum : objects.values() ){
+			noAssignedLabels +=	datum.getAssignedLabels().size();
+		}
+		
+		double labelsPerWorker = noAssignedLabels/ds.getNumberOfWorkers();
+		String expectedNoLabelsPerWorker = data.get("[Number of labels] Labels per worker");
+		String actualNoLabelsPerWorker = testHelper.format(labelsPerWorker);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "Labels per worker," + expectedNoLabelsPerWorker + "," + actualNoLabelsPerWorker);
+		assertEquals(expectedNoLabelsPerWorker, actualNoLabelsPerWorker);	
+	}
+	
+	@Test
+	public void test_GoldTestsPerWorker() {
+		HashMap<String, String> data = summaryResultsParser.getWorkerQuality();
+		Collection<Worker>	workers  = ds.getWorkers();
+		Map<String, Datum> objects = ds.getObjects();
+		double avgNoGoldTests = 0.0;
+		
+		for (Worker worker : workers) {
+			avgNoGoldTests += worker.countGoldTests(objects);
+		}
+	
+		avgNoGoldTests = avgNoGoldTests/workers.size();
+		String expectedNoGoldTestsPerWorker = data.get("[Gold Tests] Gold tests per worker");
+		String actualNoGoldTestsPerWorker = testHelper.format(avgNoGoldTests);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "Gold Tests per worker," + expectedNoGoldTestsPerWorker + "," + actualNoGoldTestsPerWorker);
+		assertEquals(expectedNoGoldTestsPerWorker, actualNoGoldTestsPerWorker);
+	}
+	
 }
