@@ -719,7 +719,7 @@ public class BaseScenarios {
 	public void test_LabelsPerWorker() {
 		HashMap<String, String> data = summaryResultsParser.getWorkerQuality();
 
-		int noAssignedLabels = 0;
+		double noAssignedLabels = 0;
 		Map <String, Datum> objects = ds.getObjects();
 		for (Datum datum : objects.values() ){
 			noAssignedLabels +=	datum.getAssignedLabels().size();
