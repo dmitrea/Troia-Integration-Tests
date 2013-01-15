@@ -166,14 +166,19 @@ public class BaseScenarios {
 		}
 		Map <String, Double> workersQuality = Quality.fromCosts(ds, result);
 		double avgQuality = 0.0;
+		double denominator = 0.;
 		
 		//compute the estimated quality cost for each object, using MV
 		for (Map.Entry<String, Double> workerQuality : workersQuality.entrySet()) { 
-			avgQuality += workerQuality.getValue();
+			Double val = workerQuality.getValue();
+			if (val == null || val.isNaN())
+				continue;
+			avgQuality += val;
+			denominator += 1.;
 		}
 		
 		//calculate the average
-		avgQuality /= workersQuality.size();
+		avgQuality /= denominator;
 		return avgQuality;
 		
 		
