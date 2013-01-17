@@ -135,53 +135,94 @@ public class BaseScenarios {
 		return avgQuality;
 	}
 	
-	public double estimateWorkerQuality(AbstractDawidSkene ds, String method) 
+	
+	public double estimateWorkerQuality(AbstractDawidSkene ds, String method, String estimationType) 
 	{
 		ILabelProbabilityDistributionCostCalculator labelProbabilityDistributionCostCalculator = LabelProbabilityDistributionCostCalculators.get(method);
 		WorkerEstimator workerEstimator = new WorkerEstimator(labelProbabilityDistributionCostCalculator);
 		Map<String, Double> result = new HashMap<String, Double>();
+		Map<String, Integer> workerAssignedLabels = new HashMap<String, Integer>();
+		
 		for (Worker w : ds.getWorkers()){
 			result.put(w.getName(), workerEstimator.getCost(ds, w));
+			workerAssignedLabels.put(w.getName(), w.getAssignedLabels().size());
 		}
 		Map <String, Double> workersQuality = Quality.fromCosts(ds, result);
-		double avgQuality = 0.0;
+		double quality = 0.0;
 		
-		//compute the estimated quality cost for each object, using MV
-		for (Map.Entry<String, Double> workerQuality : workersQuality.entrySet()) { 
-			avgQuality += workerQuality.getValue();
+		if (estimationType.equals("n"))
+		{
+			//compute the non weighted worker quality
+			for (Map.Entry<String, Double> workerQuality : workersQuality.entrySet()) { 
+				quality += workerQuality.getValue();
+			}
+		
+			//calculate the average
+			quality /= workersQuality.size();
+			return quality;
 		}
-		
-		//calculate the average
-		avgQuality /= workersQuality.size();
-		return avgQuality;
+		else
+		{
+			//compute the weighted worker quality
+			int totalNoLabels = 0;
+			for (Map.Entry<String, Double> workerQuality : workersQuality.entrySet()) {
+				quality += workerQuality.getValue() * workerAssignedLabels.get(workerQuality.getKey());
+				totalNoLabels += workerAssignedLabels.get(workerQuality.getKey());
+			}
+			
+			quality /= totalNoLabels;
+			return quality;
+		}
 	}
 	
-	public double evaluateWorkerQuality(AbstractDawidSkene ds, String method) 
+	public double evaluateWorkerQuality(AbstractDawidSkene ds, String method, String estimationType) 
 	{
 		ILabelProbabilityDistributionCostCalculator labelProbabilityDistributionCostCalculator = LabelProbabilityDistributionCostCalculators.get(method);
 		WorkerEvaluator workerEvaluator = new WorkerEvaluator(labelProbabilityDistributionCostCalculator);
 		Map<String, Double> result = new HashMap<String, Double>();
+		Map<String, Integer> workerAssignedLabels = new HashMap<String, Integer>();
+		
 		for (Worker w : ds.getWorkers()){
 			result.put(w.getName(), workerEvaluator.getCost(ds, w));
+			workerAssignedLabels.put(w.getName(), w.getAssignedLabels().size());
 		}
 		Map <String, Double> workersQuality = Quality.fromCosts(ds, result);
-		double avgQuality = 0.0;
+		double quality = 0.0;
 		double denominator = 0.;
 		
-		//compute the estimated quality cost for each object, using MV
-		for (Map.Entry<String, Double> workerQuality : workersQuality.entrySet()) { 
-			Double val = workerQuality.getValue();
-			if (val == null || val.isNaN())
-				continue;
-			avgQuality += val;
-			denominator += 1.;
+		if (estimationType.equals("n"))
+		{
+			//compute the non-weighted worker quality
+			for (Map.Entry<String, Double> workerQuality : workersQuality.entrySet()) { 
+				Double val = workerQuality.getValue();
+				if (val == null || val.isNaN())
+					continue;
+				quality += val;
+				denominator += 1.;
+			}
+		
+			//calculate the average
+			quality /= denominator;
+			return quality;	
 		}
-		
-		//calculate the average
-		avgQuality /= denominator;
-		return avgQuality;
-		
-		
+	
+		else
+		{
+			//compute the weighted worker quality
+			int totalNoLabels = 0;
+			for (Map.Entry<String, Double> workerQuality : workersQuality.entrySet()) {
+				Double val = workerQuality.getValue();
+				if (val == null || val.isNaN())
+					continue;
+				
+				quality += val * workerAssignedLabels.get(workerQuality.getKey());
+				totalNoLabels += workerAssignedLabels.get(workerQuality.getKey());
+			}
+			
+			denominator += totalNoLabels;
+			quality /= denominator;
+			return quality;	
+		}
 	}
 	
 	@Test
@@ -650,7 +691,7 @@ public class BaseScenarios {
 	@Test
 	public void test_WorkerQuality_Estm_DS_Exp_n() {
 		HashMap<String, String> data = summaryResultsParser.getWorkerQuality();
-		double avgQuality =  estimateWorkerQuality(ds, "EXPECTEDCOST");
+		double avgQuality =  estimateWorkerQuality(ds, "EXPECTEDCOST", "n");
 		
 		String expectedQuality = data.get("[WorkerQuality_Estm_DS_Exp_n] Estimated worker quality (non-weighted, DS_Exp metric)");
 		String actualQuality = testHelper.formatPercent(avgQuality);
@@ -659,9 +700,20 @@ public class BaseScenarios {
 	}
 	
 	@Test
+	public void test_WorkerQuality_Estm_DS_Exp_w() {
+		HashMap<String, String> data = summaryResultsParser.getWorkerQuality();
+		double avgQuality =  estimateWorkerQuality(ds, "EXPECTEDCOST", "w");
+		
+		String expectedQuality = data.get("[WorkerQuality_Estm_DS_Exp_w] Estimated worker quality (weighted, DS_Exp metric)");
+		String actualQuality = testHelper.formatPercent(avgQuality);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Estm_DS_Exp_w," + expectedQuality + "," + actualQuality);
+		assertEquals(expectedQuality, actualQuality);
+	}
+	
+	@Test
 	public void test_WorkerQuality_Estm_DS_ML_n() {
 		HashMap<String, String> data = summaryResultsParser.getWorkerQuality();
-		double avgQuality =  estimateWorkerQuality(ds, "MAXLIKELIHOOD");
+		double avgQuality =  estimateWorkerQuality(ds, "MAXLIKELIHOOD", "n");
 		
 		String expectedQuality = data.get("[WorkerQuality_Estm_DS_ML_n] Estimated worker quality (non-weighted, DS_ML metric)");
 		String actualQuality = testHelper.formatPercent(avgQuality);
@@ -670,9 +722,20 @@ public class BaseScenarios {
 	}
 	
 	@Test
+	public void test_WorkerQuality_Estm_DS_ML_w() {
+		HashMap<String, String> data = summaryResultsParser.getWorkerQuality();
+		double avgQuality =  estimateWorkerQuality(ds, "MAXLIKELIHOOD", "w");
+		
+		String expectedQuality = data.get("[WorkerQuality_Estm_DS_ML_w] Estimated worker quality (weighted, DS_ML metric)");
+		String actualQuality = testHelper.formatPercent(avgQuality);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Estm_DS_ML_w," + expectedQuality + "," + actualQuality);
+		assertEquals(expectedQuality, actualQuality);
+	}
+	
+	@Test
 	public void test_WorkerQuality_Estm_DS_Min_n() {
 		HashMap<String, String> data = summaryResultsParser.getWorkerQuality();
-		double avgQuality =  estimateWorkerQuality(ds, "MINCOST");
+		double avgQuality =  estimateWorkerQuality(ds, "MINCOST", "n");
 		
 		String expectedQuality = data.get("[WorkerQuality_Estm_DS_Min_n] Estimated worker quality (non-weighted, DS_Min metric)");
 		String actualQuality = testHelper.formatPercent(avgQuality);
@@ -680,15 +743,37 @@ public class BaseScenarios {
 		assertEquals(expectedQuality, actualQuality);
 	}
 
+	
+	@Test
+	public void test_WorkerQuality_Estm_DS_Min_w() {
+		HashMap<String, String> data = summaryResultsParser.getWorkerQuality();
+		double avgQuality =  estimateWorkerQuality(ds, "MINCOST", "w");
+		
+		String expectedQuality = data.get("[WorkerQuality_Estm_DS_Min_w] Estimated worker quality (weighted, DS_Min metric)");
+		String actualQuality = testHelper.formatPercent(avgQuality);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Estm_DS_Min_w," + expectedQuality + "," + actualQuality);
+		assertEquals(expectedQuality, actualQuality);
+	}
 
 	@Test
 	public void test_WorkerQuality_Eval_DS_Exp_n() {
 		HashMap<String, String> data = summaryResultsParser.getWorkerQuality();
-		double avgQuality =  evaluateWorkerQuality(ds, "EXPECTEDCOST");
+		double avgQuality =  evaluateWorkerQuality(ds, "EXPECTEDCOST", "n");
 		
 		String expectedQuality = data.get("[WorkerQuality_Eval_DS_Exp_n] Actual worker quality (non-weighted, DS_Exp metric)");
 		String actualQuality = testHelper.formatPercent(avgQuality);
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Eval_DS_Exp_n," + expectedQuality + "," + actualQuality);
+		assertEquals(expectedQuality, actualQuality);
+	}
+	
+	@Test
+	public void test_WorkerQuality_Eval_DS_Exp_w() {
+		HashMap<String, String> data = summaryResultsParser.getWorkerQuality();
+		double avgQuality =  evaluateWorkerQuality(ds, "EXPECTEDCOST", "w");
+		
+		String expectedQuality = data.get("[WorkerQuality_Eval_DS_Exp_w] Actual worker quality (weighted, DS_Exp metric)");
+		String actualQuality = testHelper.formatPercent(avgQuality);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Eval_DS_Exp_w," + expectedQuality + "," + actualQuality);
 		assertEquals(expectedQuality, actualQuality);
 	}
 
@@ -696,7 +781,7 @@ public class BaseScenarios {
 	@Test
 	public void test_WorkerQuality_Eval_DS_ML_n() {
 		HashMap<String, String> data = summaryResultsParser.getWorkerQuality();
-		double avgQuality =  evaluateWorkerQuality(ds, "MAXLIKELIHOOD");
+		double avgQuality =  evaluateWorkerQuality(ds, "MAXLIKELIHOOD", "n");
 		
 		String expectedQuality = data.get("[WorkerQuality_Eval_DS_ML_n] Actual worker quality (non-weighted, DS_ML metric)");
 		String actualQuality = testHelper.formatPercent(avgQuality);
@@ -705,13 +790,35 @@ public class BaseScenarios {
 	}
 	
 	@Test
+	public void test_WorkerQuality_Eval_DS_ML_w() {
+		HashMap<String, String> data = summaryResultsParser.getWorkerQuality();
+		double avgQuality =  evaluateWorkerQuality(ds, "MAXLIKELIHOOD", "w");
+		
+		String expectedQuality = data.get("[WorkerQuality_Eval_DS_ML_w] Actual worker quality (weighted, DS_ML metric)");
+		String actualQuality = testHelper.formatPercent(avgQuality);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Eval_DS_ML_w," + expectedQuality + "," + actualQuality);
+		assertEquals(expectedQuality, actualQuality);
+	}
+	
+	@Test
 	public void test_WorkerQuality_Eval_DS_Min_n() {
 		HashMap<String, String> data = summaryResultsParser.getWorkerQuality();
-		double avgQuality =  evaluateWorkerQuality(ds, "MINCOST");
+		double avgQuality =  evaluateWorkerQuality(ds, "MINCOST", "n");
 		
 		String expectedQuality = data.get("[WorkerQuality_Eval_DS_Min_n] Actual worker quality (non-weighted, DS_Min metric)");
 		String actualQuality = testHelper.formatPercent(avgQuality);
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Eval_DS_Min_n," + expectedQuality + "," + actualQuality);
+		assertEquals(expectedQuality, actualQuality);
+	}
+	
+	@Test
+	public void test_WorkerQuality_Eval_DS_Min_w() {
+		HashMap<String, String> data = summaryResultsParser.getWorkerQuality();
+		double avgQuality =  evaluateWorkerQuality(ds, "MINCOST", "w");
+		
+		String expectedQuality = data.get("[WorkerQuality_Eval_DS_Min_w] Actual worker quality (weighted, DS_Min metric)");
+		String actualQuality = testHelper.formatPercent(avgQuality);
+		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Eval_DS_Min_w," + expectedQuality + "," + actualQuality);
 		assertEquals(expectedQuality, actualQuality);
 	}
 	
