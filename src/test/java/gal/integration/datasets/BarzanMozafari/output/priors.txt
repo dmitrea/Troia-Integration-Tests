@@ -1,2 +1,2 @@
-Prior[1]=1.0
-Prior[0]=1.0
+Prior[1]=0.5
+Prior[0]=0.5
