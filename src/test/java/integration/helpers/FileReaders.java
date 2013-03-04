@@ -2,6 +2,7 @@ package test.java.integration.helpers;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -9,6 +10,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.StringTokenizer;
+
+import com.datascience.core.base.ContValue;
 import com.datascience.gal.MisclassificationCost;
 
 public class FileReaders {

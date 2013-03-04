@@ -5,7 +5,12 @@ import test.java.integration.helpers.*;
 import java.util.Collection;
 import java.util.HashSet;
 import org.junit.BeforeClass;
-import com.datascience.gal.*;
+
+import com.datascience.gal.BatchDawidSkene;
+import com.datascience.gal.CorrectLabel;
+import com.datascience.gal.MisclassificationCost;
+import com.datascience.gal.Category;
+import com.datascience.gal.AssignedLabel;
 
 public class Test_BatchDawidSkene_AdultContentWithEvaluation extends GALBaseScenarios{
 	
