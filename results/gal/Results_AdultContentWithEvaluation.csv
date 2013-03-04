@@ -1,0 +1,49 @@
+Metric,GAL value,Troia value
+Categories,2,2
+Objects in Data Set,5,5
+Workers in Data Set,5,5
+Labels Assigned by Workers,25,25
+[DS_Pr[porn]],0.4000,0.4000
+[DS_Pr[notporn]],0.6000,0.6000
+[MV_Pr[porn]],0.5600,0.5600
+[MV_Pr[notporn]],0.4400,0.4400
+DataCost_Estm_NoVote_Exp,0.5000,0.5000
+DataCost_Estm_NoVote_Min,0.5000,0.5000
+DataQuality_Eval_DS_Soft,20.00%,20.00%
+DataQuality_Eval_MV_Soft,20.00%,20.00%
+WorkerQuality_Estm_DS_Exp_n,68.89%,68.89%
+WorkerQuality_Estm_DS_Exp_w,68.89%,68.89%
+WorkerQuality_Estm_DS_ML_n,73.33%,73.33%
+WorkerQuality_Estm_DS_ML_w,73.33%,73.33%
+WorkerQuality_Estm_DS_Min_n,73.33%,73.33%
+WorkerQuality_Estm_DS_Min_w,73.33%,73.33%
+WorkerQuality_Eval_DS_Exp_n,2.22%,2.22%
+WorkerQuality_Eval_DS_Exp_w,2.22%,2.22%
+WorkerQuality_Eval_DS_ML_n,13.33%,13.33%
+WorkerQuality_Eval_DS_ML_w,13.33%,13.33%
+WorkerQuality_Eval_DS_Min_n,13.33%,13.33%
+WorkerQuality_Eval_DS_Min_w,13.33%,13.33%
+DataCost_Estm_DS_Exp,0.0000,0.0000
+DataCost_Estm_MV_Exp,0.2560,0.2560
+DataCost_Estm_DS_ML,0.0000,0.0000
+DataCost_Estm_MV_ML,0.2000,0.2000
+DataCost_Estm_DS_Min,0.0000,0.0000
+DataCost_Estm_MV_Min,0.2000,0.2000
+DataCost_Eval_DS_ML,0.4000,0.4000
+DataCost_Eval_MV_ML,0.6000,0.6000
+DataCost_Eval_DS_Min,0.4000,0.4000
+DataCost_Eval_MV_Min,0.6000,0.6000
+DataCost_Eval_DS_Soft,0.4000,0.4000
+DataCost_Eval_MV_Soft,0.4000,0.4000
+DataQuality_Estm_DS_ML,100.00%,100.00%
+DataQuality_Estm_MV_ML,60.00%,60.00%
+DataQuality_Estm_DS_Exp,100.00%,100.00%
+DataQuality_Estm_MV_Exp,48.80%,48.80%
+DataQuality_Estm_DS_Min,100.00%,100.00%
+DataQuality_Estm_MV_Min,60.00%,60.00%
+DataQuality_Eval_DS_ML,20.00%,20.00%
+DataQuality_Eval_MV_ML,-20.00%,-20.00%
+DataQuality_Eval_DS_Min,20.00%,20.00%
+DataQuality_Eval_MV_Min,-20.00%,-20.00%
+Labels per worker,5.0000,5.0000
+Gold Tests per worker,2.0000,2.0000

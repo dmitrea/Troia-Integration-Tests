@@ -1,14 +1,14 @@
-package test.java.gal.integration.tests;
+package test.java.integration.tests.gal;
 
 import static org.junit.Assert.assertEquals;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
-import org.junit.Ignore;
 import org.junit.Test;
-import test.java.gal.integration.helpers.*;
+import test.java.integration.helpers.*;
 
 import com.datascience.gal.AbstractDawidSkene;
 import com.datascience.gal.CorrectLabel;
@@ -19,7 +19,7 @@ import com.datascience.gal.Quality;
 import com.datascience.gal.evaluation.DataEvaluator;
 import com.datascience.gal.evaluation.WorkerEvaluator;
 
-public class BaseScenarios {
+public class GALBaseScenarios {
 
 	public static int NO_ITERATIONS = 50;
 	public static String SUMMARY_FILE;
@@ -845,9 +845,11 @@ public class BaseScenarios {
 		Collection<Worker>	workers  = ds.getWorkers();
 		Map<String, Datum> objects = ds.getObjects();
 		double avgNoGoldTests = 0.0;
+		Set<String> categories = ds.getCategories().keySet();
 		
 		for (Worker worker : workers) {
-			avgNoGoldTests += worker.countGoldTests(objects);
+			Map<String, Object> workerInfo = worker.getInfo(objects, categories);
+			avgNoGoldTests +=  (Integer)workerInfo.get("Gold tests");
 		}
 	
 		avgNoGoldTests = avgNoGoldTests/workers.size();

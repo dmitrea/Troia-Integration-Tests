@@ -1,5 +1,4 @@
-package test.java.gal.integration.helpers;
-
+package test.java.integration.helpers;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;

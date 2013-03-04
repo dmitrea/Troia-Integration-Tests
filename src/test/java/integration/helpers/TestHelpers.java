@@ -1,4 +1,4 @@
-package test.java.gal.integration.helpers;
+package test.java.integration.helpers;
 
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;

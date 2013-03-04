@@ -1,16 +1,17 @@
-package test.java.gal.integration.tests;
-import test.java.gal.integration.helpers.*;
+package test.java.integration.tests.gal;
+
+import test.java.integration.helpers.*;
 
 import java.util.Collection;
 import java.util.HashSet;
 import org.junit.BeforeClass;
 import com.datascience.gal.*;
 
-public class Test_BatchDawidSkene_AdultContentWithEvaluation extends BaseScenarios{
+public class Test_BatchDawidSkene_AdultContentWithEvaluation extends GALBaseScenarios{
 	
 	public static String FILEPATH_SEPARATOR = System.getProperty("file.separator");
-	public static String TESTDATA_BASEDIR = TestSettings.TESTDATA_BASEDIR;
-	public static String RESULTS_BASEDIR = TestSettings.RESULTS_BASEDIR;
+	public static String TESTDATA_BASEDIR = TestSettings.GAL_TESTDATA_BASEDIR;
+	public static String RESULTS_BASEDIR = TestSettings.GAL_RESULTS_BASEDIR;
 	
 	public static String TEST_DIR = "AdultContentWithEvaluation";
 	public static String INPUT_DIR 	= TESTDATA_BASEDIR + TEST_DIR + FILEPATH_SEPARATOR + "input" + FILEPATH_SEPARATOR;
@@ -36,7 +37,7 @@ public class Test_BatchDawidSkene_AdultContentWithEvaluation extends BaseScenari
 	static TestHelpers testHelper;
 	static FileWriters fileWriter;
 	
-	static BaseScenarios.Setup testSetup;
+	static GALBaseScenarios.Setup testSetup;
 	
 	@BeforeClass
 	public static void setupTests(){
@@ -63,7 +64,7 @@ public class Test_BatchDawidSkene_AdultContentWithEvaluation extends BaseScenari
 		ds.addEvaluationDatums(evaluationLabels);
 		
 		//init the test setup
-		testSetup = new BaseScenarios.Setup(ds, SUMMARY_FILE, TEST_RESULTS_FILE); 
+		testSetup = new GALBaseScenarios.Setup(ds, SUMMARY_FILE, TEST_RESULTS_FILE); 
 		initSetup(testSetup);
 	}
 
