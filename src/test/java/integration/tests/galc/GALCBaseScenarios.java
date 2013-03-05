@@ -77,8 +77,9 @@ public class GALCBaseScenarios {
 			String objectName = object.getName();
 			Double actualAvgLabel = ci.getAverageLabel(object);
 			Double expectedAvgLabel = expEstObjects.get(objectName).get("avgLabel");
+			
 			fileWriter.writeToFile(testResultsFile, "AvgLabel-" + objectName + "," + expectedAvgLabel + "," + actualAvgLabel);
-			assertEquals(expectedAvgLabel, actualAvgLabel);
+			assertTrue(Math.abs(expectedAvgLabel - actualAvgLabel) < TOLERANCE);
 		}
 	}
 	
@@ -101,10 +102,8 @@ public class GALCBaseScenarios {
 			fileWriter.writeToFile(testResultsFile, "EstValue-" + objectName + "," + expectedEstimatedValue + "," + actualEstimatedValue);
 			fileWriter.writeToFile(testResultsFile, "EstValue-" + objectName + "," + expectedEstimatedZeta + "," + actualEstimatedZeta);
 			
-			//assertEquals(expectedEstimatedValue, actualEstimatedValue);
-			//assertEquals(expectedEstimatedZeta, actualEstimatedZeta);
-			
-			
+			assertTrue(Math.abs(expectedEstimatedValue - actualEstimatedValue) < TOLERANCE);
+			assertTrue(Math.abs(expectedEstimatedZeta - actualEstimatedZeta) < TOLERANCE);
 		}
 	}
 	
@@ -148,9 +147,9 @@ public class GALCBaseScenarios {
 			fileWriter.writeToFile(testResultsFile, "Est_Sigma_" + workerName + "," + expectedEstSigma + "," + actualEstSigma);
 			fileWriter.writeToFile(testResultsFile, "Est_Rho_" + workerName + "," + expectedEstRho + "," + actualEstRho);
 			
-			//assertTrue(Math.abs(expectedEstMu - actualEstMu) < TOLERANCE);
-			//assertTrue(Math.abs(expectedEstSigma - actualEstSigma) < TOLERANCE);
-			//assertTrue(Math.abs(expectedEstRho - actualEstRho) < TOLERANCE);
+			assertTrue(Math.abs(expectedEstMu - actualEstMu) < TOLERANCE);
+			assertTrue(Math.abs(expectedEstSigma - actualEstSigma) < TOLERANCE);
+			assertTrue(Math.abs(expectedEstRho - actualEstRho) < TOLERANCE);
 		}			
 	}
 
