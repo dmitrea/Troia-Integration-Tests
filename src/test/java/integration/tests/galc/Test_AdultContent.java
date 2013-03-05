@@ -32,7 +32,7 @@ public class Test_AdultContent extends GALCBaseScenarios{
 		empData.loadTrueObjectData(EVAL_OBJECTS_FILE);
 		
 		ci.setData(empData);
-		testSetup = new GALCBaseScenarios.Setup(ci, RESULTS_OBJECTS_FILE); 
+		testSetup = new GALCBaseScenarios.Setup(ci, RESULTS_OBJECTS_FILE, RESULTS_WORKERS_FILE); 
 		initSetup(testSetup);
 	}
 

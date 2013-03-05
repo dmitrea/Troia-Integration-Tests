@@ -11,8 +11,8 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 
-import com.datascience.core.base.ContValue;
 import com.datascience.gal.dataGenerator.DataManager;
+import com.datascience.gal.AssignedLabel;
 import com.datascience.gal.Category;
 import com.datascience.gal.CorrectLabel;
 import com.datascience.gal.MisclassificationCost;
@@ -119,8 +119,8 @@ public class TestHelpers {
 	 * @param labelsFileName
 	 * @return Collection <Label>
 	 */
-	public Collection<com.datascience.gal.AssignedLabel> LoadWorkerAssignedLabels(String labelsFileName){
-		Collection <com.datascience.gal.AssignedLabel> assignedLabels = new ArrayList<com.datascience.gal.AssignedLabel>();
+	public Collection<AssignedLabel> LoadWorkerAssignedLabels(String labelsFileName){
+		Collection <AssignedLabel> assignedLabels = new ArrayList<AssignedLabel>();
 		
 		try{
 			assignedLabels = dataManager.loadLabelsFromFile(labelsFileName);
@@ -145,10 +145,5 @@ public class TestHelpers {
 		
 		return expectedWorkerScores;
 		
-	}
-	
-	public Collection<com.datascience.core.base.AssignedLabel<ContValue>> LoadContinuousAssignedLabels(String labelsFileName){
-		Collection<com.datascience.core.base.AssignedLabel<ContValue>> contAssignedLabels = new ArrayList<com.datascience.core.base.AssignedLabel<ContValue>>();
-		return contAssignedLabels;
 	}
 }
