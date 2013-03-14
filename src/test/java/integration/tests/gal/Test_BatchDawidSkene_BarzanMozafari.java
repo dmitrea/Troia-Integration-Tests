@@ -1,5 +1,10 @@
 package test.java.integration.tests.gal;
 
+import com.datascience.core.base.AssignedLabel;
+import com.datascience.core.base.Category;
+import com.datascience.core.base.LObject;
+import com.datascience.core.nominal.NominalData;
+import com.datascience.core.nominal.NominalProject;
 import test.java.integration.helpers.*;
 
 import java.util.Collection;
@@ -29,8 +34,8 @@ public class Test_BatchDawidSkene_BarzanMozafari extends GALBaseScenarios{
 	
 	static Collection<Category> categories;
 	static HashSet<MisclassificationCost> misclassificationCosts;
-	static Collection<CorrectLabel> correctLabels;
-	static Collection<AssignedLabel> assignedLabels;
+	static Collection<LObject<String>> correctLabels;
+	static Collection<AssignedLabel<String>> assignedLabels;
 	static BatchDawidSkene ds;
 	static TestHelpers testHelper;
 	static SummaryResultsParser summaryResultsParser;
@@ -48,21 +53,30 @@ public class Test_BatchDawidSkene_BarzanMozafari extends GALBaseScenarios{
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "Metric,GAL value,Troia value");
 		
 		summaryResultsParser = new SummaryResultsParser();
-		
+
 		categories = testHelper.LoadCategories(CATEGORIES_FILE);
-		ds = new BatchDawidSkene(PROJECT_ID, categories);
-				
-		misclassificationCosts = testHelper.LoadMisclassificationCosts(COSTS_FILE);
-		ds.addMisclassificationCosts(misclassificationCosts);
-				
 		correctLabels = testHelper.LoadGoldLabels(GOLDLABELS_FILE);
-		ds.addCorrectLabels(correctLabels);
-				
 		assignedLabels = testHelper.LoadWorkerAssignedLabels(LABELS_FILE);
-		ds.addAssignedLabels(assignedLabels);
+		misclassificationCosts = testHelper.LoadMisclassificationCosts(COSTS_FILE);
+
+		AbstractDawidSkene algorithm = new BatchDawidSkene();
+		project = new NominalProject(algorithm);
+		project.initializeCategories(categories);
+
+		NominalData data = algorithm.getData();
+		for (AssignedLabel<String> assign : assignedLabels) {
+			data.addAssign(assign);
+		}
+		for (LObject<String> gold : correctLabels) {
+			data.addGoldObject(gold);
+		}
+//		for (LObject<String> eval : evaluationLabels) {
+//			data.addEvaluationObject(eval);
+//		}
+		algorithm.addMisclassificationCosts(misclassificationCosts);
 		
 		//init the test setup
-		testSetup = new GALBaseScenarios.Setup(ds, SUMMARY_FILE, TEST_RESULTS_FILE); 
+		testSetup = new GALBaseScenarios.Setup(project, SUMMARY_FILE, TEST_RESULTS_FILE);
 		initSetup(testSetup);
 	}
 

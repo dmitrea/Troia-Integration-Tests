@@ -1,23 +1,24 @@
 package test.java.integration.tests.galc;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import com.datascience.core.base.ContValue;
+import com.datascience.core.base.LObject;
+import com.datascience.core.base.Worker;
+import com.datascience.core.results.DatumContResults;
+import com.datascience.core.results.WorkerContResults;
+import com.datascience.galc.ContinuousIpeirotis;
+import com.datascience.galc.ContinuousProject;
+import org.junit.Test;
+import test.java.integration.helpers.FileWriters;
+import test.java.integration.helpers.ObjectsResultsParser;
+import test.java.integration.helpers.WorkersResultsParser;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-
-import org.junit.Test;
-import test.java.integration.helpers.*;
-
-import com.datascience.core.base.Worker;
-import com.datascience.core.base.ContValue;
-import com.datascience.core.base.LObject;
-import com.datascience.galc.ContinuousIpeirotis;
-import com.datascience.galc.DatumContResults;
-import com.datascience.galc.WorkerContResults;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class GALCBaseScenarios {
 
@@ -25,6 +26,7 @@ public class GALCBaseScenarios {
 	public static double EPSILON = 1e-5;
 	public static double TOLERANCE = 0.0000000001;
 	public static FileWriters fileWriter;
+	public static ContinuousProject project;
 	public static ContinuousIpeirotis ci;
 	public static String testResultsFile;
 	public static String resObjectsFile;
@@ -33,21 +35,22 @@ public class GALCBaseScenarios {
 	public static WorkersResultsParser workersResultsParser;
 	
 	public static class Setup{
-		public ContinuousIpeirotis contIpeirotis;
+		public ContinuousProject project;
 		public String testResultsFile;
 		public String resultsObjectsFile;
 		public String resultsWorkersFile;
 		
-		public Setup(ContinuousIpeirotis ci, String tResultsFile, String resObjectsFile, String resWorkersFile) {
+		public Setup(ContinuousProject project, String tResultsFile, String resObjectsFile, String resWorkersFile) {
 			testResultsFile = tResultsFile;
-			contIpeirotis = ci;
+			this.project = project;
 			resultsObjectsFile = resObjectsFile;
 			resultsWorkersFile = resWorkersFile;
 		}		
 	}
 	
 	public static void initSetup(Setup testSetup){
-		ci = testSetup.contIpeirotis;
+		project = testSetup.project;
+		ci = (ContinuousIpeirotis) project.getAlgorithm();
 		testResultsFile = testSetup.testResultsFile;
 		resObjectsFile = testSetup.resultsObjectsFile;
 		resWorkersFile = testSetup.resultsWorkersFile;

@@ -1,49 +1,61 @@
 package test.java.integration.tests.gal;
 
-import static org.junit.Assert.assertEquals;
+import com.datascience.core.base.AssignedLabel;
+import com.datascience.core.base.LObject;
+import com.datascience.core.base.Worker;
+import com.datascience.core.nominal.NominalData;
+import com.datascience.core.nominal.NominalProject;
+import com.datascience.core.nominal.decision.*;
+import com.datascience.core.results.WorkerResult;
+import com.datascience.gal.AbstractDawidSkene;
+import com.datascience.gal.Quality;
+import com.datascience.gal.evaluation.DataEvaluator;
+import com.datascience.gal.evaluation.WorkerEvaluator;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import test.java.integration.helpers.FileWriters;
+import test.java.integration.helpers.SummaryResultsParser;
+import test.java.integration.helpers.TestHelpers;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Test;
-import test.java.integration.helpers.*;
-
-import com.datascience.gal.AbstractDawidSkene;
-import com.datascience.gal.CorrectLabel;
-import com.datascience.gal.Datum;
-import com.datascience.gal.Worker;
-import com.datascience.gal.decision.*;
-import com.datascience.gal.Quality;
-import com.datascience.gal.evaluation.DataEvaluator;
-import com.datascience.gal.evaluation.WorkerEvaluator;
+import static org.junit.Assert.assertEquals;
 
 public class GALBaseScenarios {
 
 	public static int NO_ITERATIONS = 50;
+	public static double EPSILON = 1e-5;
 	public static String SUMMARY_FILE;
 	public static String TEST_RESULTS_FILE;
+	public static NominalProject project;
+	public static NominalData data;
 	public static AbstractDawidSkene ds;
 	public static FileWriters fileWriter;
 	public static TestHelpers testHelper;
 	public static SummaryResultsParser summaryResultsParser;
 	
 	public static class Setup{
-		public AbstractDawidSkene abstractDS;
+
+		public NominalProject project;
 		public String summaryResultsFile;
 		public String testResultsFile;
 		
-		public Setup(AbstractDawidSkene ds, String summaryFile, String resultsFile) {
-			abstractDS = ds;
+		public Setup(NominalProject project, String summaryFile, String resultsFile) {
+			this.project = project;
 			summaryResultsFile = summaryFile;
 			testResultsFile = resultsFile;
 		}		
 	}
-	
+
 	public static void initSetup(Setup testSetup){
-		ds = testSetup.abstractDS;
-		ds.estimate(NO_ITERATIONS);
+		project = testSetup.project;
+		ds = (AbstractDawidSkene) project.getAlgorithm();
+		data = project.getData();
+		ds.estimate(EPSILON, NO_ITERATIONS);
 		SUMMARY_FILE = testSetup.summaryResultsFile;
 		TEST_RESULTS_FILE = testSetup.testResultsFile;
 		
@@ -61,13 +73,13 @@ public class GALBaseScenarios {
 	public double estimateMissclassificationCost(AbstractDawidSkene ds, ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator, ILabelProbabilityDistributionCostCalculator labelProbabilityDistributionCostCalculator, IObjectLabelDecisionAlgorithm objectLabelDecisionAlgorithm) 
 	{
 		DecisionEngine decisionEngine = new DecisionEngine(labelProbabilityDistributionCalculator, labelProbabilityDistributionCostCalculator, objectLabelDecisionAlgorithm);
-		Map<String, Datum> objects = ds.getObjects();
+		NominalData data = ds.getData();
+		Set<LObject<String>> objects = data.getObjects();
 		double avgClassificationCost = 0.0;
 		
 		//compute the estimated misclassification cost for each object, using DS
-		for (Map.Entry<String, Datum> object : objects.entrySet()) { 
-			Datum datum = object.getValue();
-			avgClassificationCost += decisionEngine.estimateMissclassificationCost(ds, datum);
+		for (LObject<String> object : objects) {
+			avgClassificationCost += decisionEngine.estimateMissclassificationCost(project, object);
 		}
 		
 		//calculate the average
@@ -77,26 +89,28 @@ public class GALBaseScenarios {
 	
 	public double evaluateMissclassificationCost(AbstractDawidSkene ds, String labelChoosingMethod, ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator) 
 	{
-		DataEvaluator dataEvaluator = DataEvaluator.get (labelChoosingMethod, labelProbabilityDistributionCalculator);
+		DataEvaluator dataEvaluator = DataEvaluator.get(labelChoosingMethod, labelProbabilityDistributionCalculator);
+		NominalData data = ds.getData();
 		
-		Map <String, CorrectLabel> evaluationData = ds.getEvaluationDatums();
-		double avgClassificationCost = 0.0;
+		Set<LObject<String>> evaluationData = data.getEvaluationObjects();
+		double avgCost = 0.0;
 		
 		//compute the evaluated misclassification cost for each evaluation datum
-		for ( Map.Entry<String, CorrectLabel> evaluationDatum : evaluationData.entrySet()) { 
-			avgClassificationCost += dataEvaluator.evaluate(ds, evaluationDatum.getValue());
+		Map<String, Double> evaluated = dataEvaluator.evaluate(project);
+		for (Map.Entry<String, Double> entry : evaluated.entrySet()) {
+			avgCost += entry.getValue();
 		}
 		
 		//calculate the average
-		avgClassificationCost = avgClassificationCost/evaluationData.size();
-		return avgClassificationCost;
+		avgCost = avgCost / evaluationData.size();
+		return avgCost;
 	}
 	
 	
 	public double estimateCostToQuality(AbstractDawidSkene ds, ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator, ILabelProbabilityDistributionCostCalculator labelProbabilityDistributionCostCalculator, IObjectLabelDecisionAlgorithm objectLabelDecisionAlgorithm) 
 	{
 		DecisionEngine decisionEngine = new DecisionEngine(labelProbabilityDistributionCalculator, labelProbabilityDistributionCostCalculator, objectLabelDecisionAlgorithm);
-		Map <String, Double> costQuality = Quality.fromCosts(ds, decisionEngine.estimateMissclassificationCosts(ds));
+		Map <String, Double> costQuality = Quality.fromCosts(project, decisionEngine.estimateMissclassificationCosts(project));
 		
 		double avgQuality = 0.0;
 		
@@ -112,17 +126,9 @@ public class GALBaseScenarios {
 	
 	public double evaluateCostToQuality(AbstractDawidSkene ds, String labelChoosingMethod, ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator) 
 	{
-		DataEvaluator dataEvaluator = DataEvaluator.get (labelChoosingMethod, labelProbabilityDistributionCalculator);
-		
-		Map <String, CorrectLabel> evaluationData = ds.getEvaluationDatums();
-		Map <String, Double> qualityCosts = new HashMap<String, Double>();
-		
-		//compute the evaluated misclassification cost for each evaluation datum
-		for ( Map.Entry<String, CorrectLabel> evaluationDatum : evaluationData.entrySet()) { 
-			qualityCosts.put(evaluationDatum.getKey(), dataEvaluator.evaluate(ds, evaluationDatum.getValue()));
-		}
-		
-		Map <String, Double> costQuality = Quality.fromCosts(ds, qualityCosts);
+		DataEvaluator dataEvaluator = DataEvaluator.get(labelChoosingMethod, labelProbabilityDistributionCalculator);
+
+		Map <String, Double> costQuality = Quality.fromCosts(project, dataEvaluator.evaluate(project));
 		double avgQuality = 0.0;
 		
 		//compute the estimated quality cost for each object, using MV
@@ -142,12 +148,15 @@ public class GALBaseScenarios {
 		WorkerEstimator workerEstimator = new WorkerEstimator(labelProbabilityDistributionCostCalculator);
 		Map<String, Double> result = new HashMap<String, Double>();
 		Map<String, Integer> workerAssignedLabels = new HashMap<String, Integer>();
+
 		
-		for (Worker w : ds.getWorkers()){
-			result.put(w.getName(), workerEstimator.getCost(ds, w));
-			workerAssignedLabels.put(w.getName(), w.getAssignedLabels().size());
+		for (Map.Entry<Worker<String>, WorkerResult> w : project.getResults().getWorkerResults().entrySet()){
+			Worker<String> worker = w.getKey();
+			result.put(worker.getName(), workerEstimator.getCost(project, worker));
+			workerAssignedLabels.put(worker.getName(), worker.getAssigns().size());
 		}
-		Map <String, Double> workersQuality = Quality.fromCosts(ds, result);
+
+		Map <String, Double> workersQuality = Quality.fromCosts(project, result);
 		double quality = 0.0;
 		
 		if (estimationType.equals("n"))
@@ -181,12 +190,14 @@ public class GALBaseScenarios {
 		WorkerEvaluator workerEvaluator = new WorkerEvaluator(labelProbabilityDistributionCostCalculator);
 		Map<String, Double> result = new HashMap<String, Double>();
 		Map<String, Integer> workerAssignedLabels = new HashMap<String, Integer>();
-		
-		for (Worker w : ds.getWorkers()){
-			result.put(w.getName(), workerEvaluator.getCost(ds, w));
-			workerAssignedLabels.put(w.getName(), w.getAssignedLabels().size());
+
+		for (Map.Entry<Worker<String>, WorkerResult> w : project.getResults().getWorkerResults().entrySet()){
+			Worker<String> worker = w.getKey();
+			result.put(worker.getName(), workerEvaluator.getCost(project, worker));
+			workerAssignedLabels.put(worker.getName(), worker.getAssigns().size());
 		}
-		Map <String, Double> workersQuality = Quality.fromCosts(ds, result);
+
+		Map <String, Double> workersQuality = Quality.fromCosts(project, result);
 		double quality = 0.0;
 		double denominator = 0.;
 		
@@ -230,25 +241,26 @@ public class GALBaseScenarios {
 		HashMap<String, String> data = summaryResultsParser.getData();
 
 		int expectedCategoriesNo = Integer.parseInt(data.get("Categories"));
-		int actualCategoriesNo = ds.getCategories().size();
+		int actualCategoriesNo = ds.getData().getCategories().size();
+
 		assertEquals(expectedCategoriesNo, actualCategoriesNo);
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "Categories," + expectedCategoriesNo + "," + actualCategoriesNo);
 				
 		int expectedObjectsNo = Integer.parseInt(data.get("Objects in Data Set"));
-		int actualObjectsNo = ds.getNumberOfObjects();	
+		int actualObjectsNo = ds.getData().getObjects().size();
 		assertEquals(expectedObjectsNo, actualObjectsNo);
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "Objects in Data Set," + expectedObjectsNo + "," + actualObjectsNo);
 		
 		int expectedWorkersNo = Integer.parseInt(data.get("Workers in Data Set"));
-		int actualWorkersNo = ds.getNumberOfWorkers();	
+		int actualWorkersNo = ds.getData().getWorkers().size();
 		assertEquals(expectedWorkersNo, actualWorkersNo);
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "Workers in Data Set," + expectedWorkersNo + "," + actualWorkersNo);
 		
 		//get the labels
 		int noAssignedLabels = 0;
-		Map <String, Datum> objects = ds.getObjects();
-		for (Datum datum : objects.values() ){
-			noAssignedLabels +=	datum.getAssignedLabels().size();
+		Set<LObject<String>> objects = ds.getData().getObjects();
+		for (LObject<String> object : objects){
+			noAssignedLabels +=	ds.getData().getAssignsForObject(object).size();
 		}
 		
 		int expectedLabelsNo = Integer.parseInt(data.get("Labels Assigned by Workers"));
@@ -261,30 +273,29 @@ public class GALBaseScenarios {
 		HashMap<String, String> data = summaryResultsParser.getDataQuality();
 		ILabelProbabilityDistributionCalculator probDistributionCalculator = LabelProbabilityDistributionCalculators.get("DS");
 		DecisionEngine decisionEngine = new DecisionEngine(probDistributionCalculator, null, null);
-		Map <String, Datum> objects = ds.getObjects();
+		//Map <String, Datum> objects = ds.getObjects();
+		Set<LObject<String>> objects = ds.getData().getObjects();
 		
 		//init the categoryProbabilities hashmap
 		HashMap <String, Double> categoryProbabilities = new HashMap<String, Double>();
-		for (String categoryName : ds.getCategories().keySet())
+		for (String categoryName : ds.getData().getCategoriesNames()) {
 			categoryProbabilities.put(categoryName, 0.0);
-		
+		}
+
 		//iterate through the datum objects and calculate the sum of the probabilities associated  to each category
 		int noObjects = objects.size();
-		for (Map.Entry<String, Datum> object : objects.entrySet())
-		{
-		    Datum datum = object.getValue();
-		    
-		    Map <String, Double> objectProbabilities = decisionEngine.getPD(datum, ds);
+		for (LObject<String> object : objects){
+		    Map <String, Double> objectProbabilities = decisionEngine.getPD(object, project);
 		    for (String categoryName : objectProbabilities.keySet()){
 		    	categoryProbabilities.put(categoryName, (categoryProbabilities.get(categoryName) + objectProbabilities.get(categoryName)));    	
 		    }
 		}
 		
 		//calculate the average probability value for each category
-		for (String categoryName : ds.getCategories().keySet()){
+		for (String categoryName : ds.getData().getCategoriesNames()){
 			categoryProbabilities.put(categoryName, categoryProbabilities.get(categoryName)/noObjects);
 		}
-		for (String categoryName : ds.getCategories().keySet()){
+		for (String categoryName : ds.getData().getCategoriesNames()){
 			String metricName = "[DS_Pr[" + categoryName + "]] DS estimate for prior probability of category " + categoryName;
 			String expectedCategoryProbability = data.get(metricName);
 			String actualCategoryProbability = testHelper.format(categoryProbabilities.get(categoryName));
@@ -298,31 +309,29 @@ public class GALBaseScenarios {
 		HashMap<String, String> data = summaryResultsParser.getDataQuality();
 		ILabelProbabilityDistributionCalculator probDistributionCalculator = LabelProbabilityDistributionCalculators.get("MV");
 		DecisionEngine decisionEngine = new DecisionEngine(probDistributionCalculator, null, null);
-		Map <String, Datum> objects = ds.getObjects();
+		Set<LObject<String>> objects = ds.getData().getObjects();
 		
 		//init the categoryProbabilities hashmap
 		HashMap <String, Double> categoryProbabilities = new HashMap<String, Double>();
-		for (String categoryName : ds.getCategories().keySet())
+		for (String categoryName : ds.getData().getCategoriesNames()) {
 			categoryProbabilities.put(categoryName, 0.0);
+		}
 		
 		//iterate through the datum objects and calculate the sum of the probabilities associated  to each category
 		int noObjects = objects.size();
-		for (Map.Entry<String, Datum> object : objects.entrySet())
-		{
-		    Datum datum = object.getValue();
-		    
-		    Map <String, Double> objectProbabilities = decisionEngine.getPD(datum, ds);
+		for (LObject<String> object : objects){
+		    Map <String, Double> objectProbabilities = decisionEngine.getPD(object, project);
 		    for (String categoryName : objectProbabilities.keySet()){
 		    	categoryProbabilities.put(categoryName, (categoryProbabilities.get(categoryName) + objectProbabilities.get(categoryName)));    	
 		    }
 		}
 		
 		//calculate the average probability value for each category
-		for (String categoryName : ds.getCategories().keySet()){
+		for (String categoryName : ds.getData().getCategoriesNames()){
 			categoryProbabilities.put(categoryName, categoryProbabilities.get(categoryName)/noObjects);
 		}
 		
-		for (String categoryName : ds.getCategories().keySet()){
+		for (String categoryName : ds.getData().getCategoriesNames()){
 			String metricName = "[MV_Pr[" + categoryName + "]] Majority Vote estimate for prior probability of category " + categoryName;
 			String expectedCategoryProbability = data.get(metricName);
 			String actualCategoryProbability = testHelper.format(categoryProbabilities.get(categoryName));
@@ -336,7 +345,7 @@ public class GALBaseScenarios {
 	public void test_DataCost_Estm_DS_Exp() {	
 		HashMap<String, String> data = summaryResultsParser.getDataQuality();
 		ILabelProbabilityDistributionCalculator labelProbabilityDistributionCalculator = LabelProbabilityDistributionCalculators.get("DS");
-		ILabelProbabilityDistributionCostCalculator	labelProbabilityDistributionCostCalculator = LabelProbabilityDistributionCostCalculators.get("EXPECTEDCOST");
+		ILabelProbabilityDistributionCostCalculator labelProbabilityDistributionCostCalculator = LabelProbabilityDistributionCostCalculators.get("EXPECTEDCOST");
 		
 		double avgClassificationCost = estimateMissclassificationCost(ds, labelProbabilityDistributionCalculator, labelProbabilityDistributionCostCalculator, null);
 		
@@ -827,12 +836,12 @@ public class GALBaseScenarios {
 		HashMap<String, String> data = summaryResultsParser.getWorkerQuality();
 
 		double noAssignedLabels = 0;
-		Map <String, Datum> objects = ds.getObjects();
-		for (Datum datum : objects.values() ){
-			noAssignedLabels +=	datum.getAssignedLabels().size();
+		Set<LObject<String>> objects = ds.getData().getObjects();
+		for (LObject<String> object : objects){
+			noAssignedLabels +=	ds.getData().getAssignsForObject(object).size();
 		}
 		
-		double labelsPerWorker = noAssignedLabels/ds.getNumberOfWorkers();
+		double labelsPerWorker = noAssignedLabels/ds.getData().getWorkers().size();
 		String expectedNoLabelsPerWorker = data.get("[Number of labels] Labels per worker");
 		String actualNoLabelsPerWorker = testHelper.format(labelsPerWorker);
 		fileWriter.writeToFile(TEST_RESULTS_FILE, "Labels per worker," + expectedNoLabelsPerWorker + "," + actualNoLabelsPerWorker);
@@ -842,14 +851,17 @@ public class GALBaseScenarios {
 	@Test
 	public void test_GoldTestsPerWorker() {
 		HashMap<String, String> data = summaryResultsParser.getWorkerQuality();
-		Collection<Worker>	workers  = ds.getWorkers();
-		Map<String, Datum> objects = ds.getObjects();
+		Set<Worker<String>>	workers  = ds.getData().getWorkers();
+		Set<LObject<String>> objects = ds.getData().getObjects();
 		double avgNoGoldTests = 0.0;
-		Set<String> categories = ds.getCategories().keySet();
+		Collection<String> categories = ds.getData().getCategoriesNames();
 		
-		for (Worker worker : workers) {
-			Map<String, Object> workerInfo = worker.getInfo(objects, categories);
-			avgNoGoldTests +=  (Integer)workerInfo.get("Gold tests");
+		for (Worker<String> worker : workers) {
+			for (AssignedLabel<String> assign : worker.getAssigns()) {
+				if (assign.getLobject().isGold()) {
+					avgNoGoldTests += 1;
+				}
+			}
 		}
 	
 		avgNoGoldTests = avgNoGoldTests/workers.size();

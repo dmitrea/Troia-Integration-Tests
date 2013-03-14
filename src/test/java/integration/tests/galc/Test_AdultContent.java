@@ -21,21 +21,20 @@ public class Test_AdultContent extends GALCBaseScenarios{
 	public static String RESULTS_WORKERS_FILE = OUTPUT_DIR 	+	"results-workers.txt";
 	
 	public static String TEST_RESULTS_FILE = RESULTS_BASEDIR + "Results_AdultContent.csv";
-	
-	static ContinuousIpeirotis ci;
+
 	static GALCBaseScenarios.Setup testSetup;
 	
 	@BeforeClass
-	public static void setupTests(){	
-		ci = new ContinuousIpeirotis();
+	public static void setupTests(){
+		ContinuousProject project = new ContinuousProject(new ContinuousIpeirotis());
 		EmpiricalData empData = new EmpiricalData();
 		empData.loadLabelFile(LABELS_FILE);
 		empData.loadGoldLabelsFile(GOLDLABELS_FILE);
 		empData.loadTrueObjectData(EVAL_OBJECTS_FILE);
-		
-		ci.setData(empData);
-		testSetup = new GALCBaseScenarios.Setup(ci, TEST_RESULTS_FILE, RESULTS_OBJECTS_FILE, RESULTS_WORKERS_FILE); 
+
+		testSetup = new GALCBaseScenarios.Setup(project, TEST_RESULTS_FILE, RESULTS_OBJECTS_FILE, RESULTS_WORKERS_FILE);
 		initSetup(testSetup);
+		ci.setData(empData);
 	}
 
 	
