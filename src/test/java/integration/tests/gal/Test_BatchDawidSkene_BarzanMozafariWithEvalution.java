@@ -31,7 +31,6 @@ public class Test_BatchDawidSkene_BarzanMozafariWithEvalution extends GALBaseSce
 	
 	//test results file
 	public static String TEST_RESULTS_FILE = RESULTS_BASEDIR + "Results_BarzanMozafariWithEvaluation.csv";
-	public static String PROJECT_ID = "12345";
 	
 	static Collection<Category> categories;
 	static HashSet<MisclassificationCost> misclassificationCosts;

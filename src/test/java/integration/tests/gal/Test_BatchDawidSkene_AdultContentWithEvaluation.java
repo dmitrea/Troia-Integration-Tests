@@ -35,14 +35,12 @@ public class Test_BatchDawidSkene_AdultContentWithEvaluation extends GALBaseScen
 	
 	//test results file
 	public static String TEST_RESULTS_FILE = RESULTS_BASEDIR + "Results_AdultContentWithEvaluation.csv";
-	public static String PROJECT_ID = "12345";
 	
 	static Collection<Category> categories;
 	static HashSet<MisclassificationCost> misclassificationCosts;
 	static Collection<LObject<String>> correctLabels;
 	static Collection<LObject<String>> evaluationLabels;
 	static Collection<AssignedLabel<String>> assignedLabels;
- 	static NominalProject project;
 	static TestHelpers testHelper;
 	static FileWriters fileWriter;
 	
@@ -64,7 +62,7 @@ public class Test_BatchDawidSkene_AdultContentWithEvaluation extends GALBaseScen
 		misclassificationCosts = testHelper.LoadMisclassificationCosts(COSTS_FILE);
 
 		AbstractDawidSkene algorithm = new BatchDawidSkene();
-		project = new NominalProject(algorithm);
+		NominalProject project = new NominalProject(algorithm);
 		project.initializeCategories(categories);
 
 		NominalData data = algorithm.getData();
@@ -78,7 +76,6 @@ public class Test_BatchDawidSkene_AdultContentWithEvaluation extends GALBaseScen
 			data.addEvaluationObject(eval);
 		}
 		algorithm.addMisclassificationCosts(misclassificationCosts);
-		//algorithm.setData(data);
 
 		//init the test setup
 		testSetup = new GALBaseScenarios.Setup(project, SUMMARY_FILE, TEST_RESULTS_FILE);
