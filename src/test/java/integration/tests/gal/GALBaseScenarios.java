@@ -1,13 +1,15 @@
 package test.java.integration.tests.gal;
 
 import com.datascience.core.base.AssignedLabel;
+import com.datascience.core.base.Category;
 import com.datascience.core.base.LObject;
 import com.datascience.core.base.Worker;
 import com.datascience.core.nominal.NominalData;
 import com.datascience.core.nominal.NominalProject;
 import com.datascience.core.nominal.decision.*;
 import com.datascience.core.results.WorkerResult;
-import com.datascience.gal.AbstractDawidSkene;
+import com.datascience.gal.BatchDawidSkene;
+import com.datascience.gal.MisclassificationCost;
 import com.datascience.gal.Quality;
 import com.datascience.gal.evaluation.DataEvaluator;
 import com.datascience.gal.evaluation.WorkerEvaluator;
@@ -15,59 +17,55 @@ import org.junit.Test;
 import test.java.integration.helpers.FileWriters;
 import test.java.integration.helpers.SummaryResultsParser;
 import test.java.integration.helpers.TestHelpers;
+import test.java.integration.helpers.TestSettings;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
 public class GALBaseScenarios {
 
-	public static int NO_ITERATIONS = 50;
-	public static double EPSILON = 1e-3;
-	public static String SUMMARY_FILE;
-	public static String TEST_RESULTS_FILE;
-	public static NominalProject project;
-	public static NominalData data;
-	public static AbstractDawidSkene ds;
-	public static FileWriters fileWriter;
-	public static TestHelpers testHelper;
-	public static SummaryResultsParser summaryResultsParser;
-	
-	public static class Setup{
+	public final static int NO_ITERATIONS = 50;
+	public final static double EPSILON = 1e-3;
 
-		public NominalProject project;
-		public String summaryResultsFile;
-		public String testResultsFile;
-		
-		public Setup(NominalProject project, String summaryFile, String resultsFile) {
-			this.project = project;
-			summaryResultsFile = summaryFile;
-			testResultsFile = resultsFile;
-		}		
-	}
+	public final static String DATA_BASE_DIR = TestSettings.GAL_TESTDATA_BASEDIR;
 
-	public static void initSetup(Setup testSetup){
-		project = testSetup.project;
-		ds = (AbstractDawidSkene) project.getAlgorithm();
+	protected Collection<Category> categories;
+	protected Collection<LObject<String>> correctLabels;
+	protected Collection<AssignedLabel<String>> assignedLabels;
+	protected Collection<LObject<String>> evaluationLabels;
+	protected Set<MisclassificationCost> costs;
+
+	protected TestHelpers testHelper = new TestHelpers();
+	protected FileWriters fileWriter;
+	protected SummaryResultsParser summaryResultsParser;
+
+	private NominalProject project;
+	private NominalData data;
+	private BatchDawidSkene algorithm;
+
+	public void setUp() {
+		algorithm = new BatchDawidSkene();
+		project = new NominalProject(algorithm);
 		data = project.getData();
-		ds.estimate(EPSILON, NO_ITERATIONS);
-		SUMMARY_FILE = testSetup.summaryResultsFile;
-		TEST_RESULTS_FILE = testSetup.testResultsFile;
-		
-		testHelper = new TestHelpers();
 
-		//prepare the test results file
-		fileWriter = new FileWriters();
-		fileWriter.createNewFile(TEST_RESULTS_FILE);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "Metric,GAL value,Troia value");
-		
-		summaryResultsParser = new SummaryResultsParser();
-		summaryResultsParser.ParseSummaryFile(SUMMARY_FILE);
+		project.initializeCategories(categories);
+
+		for (AssignedLabel<String> assign : assignedLabels) {
+			data.addAssign(assign);
+		}
+		for (LObject<String> gold : correctLabels) {
+			data.addGoldObject(gold);
+		}
+		for (LObject<String> eval : evaluationLabels) {
+			data.addEvaluationObject(eval);
+		}
+		algorithm.addMisclassificationCosts(costs);
+		algorithm.estimate(EPSILON, NO_ITERATIONS);
+
+		fileWriter.write("Metric,GAL value,Troia value");
 	}
-	
+
 	public double estimateMissclassificationCost(
 			ILabelProbabilityDistributionCostCalculator labelProbabilityDistributionCostCalculator,
 			IObjectLabelDecisionAlgorithm objectLabelDecisionAlgorithm) {
@@ -234,17 +232,17 @@ public class GALBaseScenarios {
 		int actualCategoriesNo = this.data.getCategories().size();
 
 		assertEquals(expectedCategoriesNo, actualCategoriesNo);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "Categories," + expectedCategoriesNo + "," + actualCategoriesNo);
+		fileWriter.write("Categories," + expectedCategoriesNo + "," + actualCategoriesNo);
 				
 		int expectedObjectsNo = Integer.parseInt(data.get("Objects in Data Set"));
 		int actualObjectsNo = this.data.getObjects().size();
 		assertEquals(expectedObjectsNo, actualObjectsNo);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "Objects in Data Set," + expectedObjectsNo + "," + actualObjectsNo);
+		fileWriter.write("Objects in Data Set," + expectedObjectsNo + "," + actualObjectsNo);
 		
 		int expectedWorkersNo = Integer.parseInt(data.get("Workers in Data Set"));
 		int actualWorkersNo = this.data.getWorkers().size();
 		assertEquals(expectedWorkersNo, actualWorkersNo);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "Workers in Data Set," + expectedWorkersNo + "," + actualWorkersNo);
+		fileWriter.write("Workers in Data Set," + expectedWorkersNo + "," + actualWorkersNo);
 		
 		//get the labels
 		int noAssignedLabels = 0;
@@ -255,7 +253,7 @@ public class GALBaseScenarios {
 		
 		int expectedLabelsNo = Integer.parseInt(data.get("Labels Assigned by Workers"));
 		assertEquals(expectedLabelsNo, noAssignedLabels);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "Labels Assigned by Workers," + expectedLabelsNo + "," + noAssignedLabels);
+		fileWriter.write("Labels Assigned by Workers," + expectedLabelsNo + "," + noAssignedLabels);
 	}	
 	
 	@Test
@@ -265,7 +263,7 @@ public class GALBaseScenarios {
 		
 		//init the categoryProbabilities hashmap
 		HashMap <String, Double> categoryProbabilities = new HashMap<String, Double>();
-		for (String categoryName : ds.getData().getCategoriesNames()) {
+		for (String categoryName : algorithm.getData().getCategoriesNames()) {
 			categoryProbabilities.put(categoryName, 0.0);
 		}
 
@@ -286,7 +284,7 @@ public class GALBaseScenarios {
 			String metricName = "[DS_Pr[" + categoryName + "]] DS estimate for prior probability of category " + categoryName;
 			String expectedCategoryProbability = dataQuality.get(metricName);
 			String actualCategoryProbability = testHelper.format(categoryProbabilities.get(categoryName));
-			fileWriter.writeToFile(TEST_RESULTS_FILE, "[DS_Pr[" + categoryName + "]]," + expectedCategoryProbability + "," + actualCategoryProbability);
+			fileWriter.write("[DS_Pr[" + categoryName + "]]," + expectedCategoryProbability + "," + actualCategoryProbability);
 			assertEquals(expectedCategoryProbability, actualCategoryProbability);
 		}	
 	}
@@ -294,11 +292,11 @@ public class GALBaseScenarios {
 	@Test
 	public void test_ProbabilityDistributions_MV(){
 		HashMap<String, String> dataQuality = summaryResultsParser.getDataQuality();
-		Set<LObject<String>> objects = ds.getData().getObjects();
+		Set<LObject<String>> objects = algorithm.getData().getObjects();
 		
 		//init the categoryProbabilities hashmap
 		HashMap <String, Double> categoryProbabilities = new HashMap<String, Double>();
-		for (String categoryName : ds.getData().getCategoriesNames()) {
+		for (String categoryName : algorithm.getData().getCategoriesNames()) {
 			categoryProbabilities.put(categoryName, 0.0);
 		}
 		
@@ -312,15 +310,15 @@ public class GALBaseScenarios {
 		}
 		
 		//calculate the average probability value for each category
-		for (String categoryName : ds.getData().getCategoriesNames()){
+		for (String categoryName : algorithm.getData().getCategoriesNames()){
 			categoryProbabilities.put(categoryName, categoryProbabilities.get(categoryName)/noObjects);
 		}
 		
-		for (String categoryName : ds.getData().getCategoriesNames()){
+		for (String categoryName : algorithm.getData().getCategoriesNames()){
 			String metricName = "[MV_Pr[" + categoryName + "]] Majority Vote estimate for prior probability of category " + categoryName;
 			String expectedCategoryProbability = dataQuality.get(metricName);
 			String actualCategoryProbability = testHelper.format(categoryProbabilities.get(categoryName));
-			fileWriter.writeToFile(TEST_RESULTS_FILE, "[MV_Pr[" + categoryName + "]]," + expectedCategoryProbability + "," + actualCategoryProbability);
+			fileWriter.write("[MV_Pr[" + categoryName + "]]," + expectedCategoryProbability + "," + actualCategoryProbability);
 			assertEquals(expectedCategoryProbability, actualCategoryProbability);
 		}	
 	}
@@ -335,7 +333,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataCost_Estm_DS_Exp] Estimated classification cost (DS_Exp metric)");
 		String actualClassificationCost = testHelper.format(avgClassificationCost);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Estm_DS_Exp," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataCost_Estm_DS_Exp," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
@@ -349,7 +347,7 @@ public class GALBaseScenarios {
 
 		String expectedClassificationCost = dataQuality.get("[DataCost_Estm_MV_Exp] Estimated classification cost (MV_Exp metric)");
 		String actualClassificationCost = testHelper.format(avgClassificationCost);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Estm_MV_Exp," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataCost_Estm_MV_Exp," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
@@ -362,7 +360,7 @@ public class GALBaseScenarios {
 
 		String expectedClassificationCost = dataQuality.get("[DataCost_Estm_DS_ML] Estimated classification cost (DS_ML metric)");
 		String actualClassificationCost = testHelper.format(avgClassificationCost);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Estm_DS_ML," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataCost_Estm_DS_ML," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 		
 	}	
@@ -376,7 +374,7 @@ public class GALBaseScenarios {
 
 		String expectedClassificationCost = dataQuality.get("[DataCost_Estm_MV_ML] Estimated classification cost (MV_ML metric)");
 		String actualClassificationCost = testHelper.format(avgClassificationCost);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Estm_MV_ML," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataCost_Estm_MV_ML," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
@@ -390,7 +388,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataCost_Estm_DS_Min] Estimated classification cost (DS_Min metric)");
 		String actualClassificationCost =  testHelper.format(avgClassificationCost);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Estm_DS_Min," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataCost_Estm_DS_Min," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
@@ -403,7 +401,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataCost_Estm_MV_Min] Estimated classification cost (MV_Min metric)");
 		String actualClassificationCost = testHelper.format(avgClassificationCost);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Estm_MV_Min," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataCost_Estm_MV_Min," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
 	
@@ -416,7 +414,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataCost_Estm_NoVote_Exp] Baseline classification cost (random spammer)");
 		String actualClassificationCost = testHelper.format(avgClassificationCost);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Estm_NoVote_Exp," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataCost_Estm_NoVote_Exp," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
@@ -429,7 +427,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataCost_Estm_NoVote_Min] Baseline classification cost (strategic spammer)");
 		String actualClassificationCost = testHelper.format(avgClassificationCost);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Estm_NoVote_Min," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataCost_Estm_NoVote_Min," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
@@ -441,7 +439,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataCost_Eval_DS_ML] Actual classification cost for EM, maximum likelihood classification");
 		String actualClassificationCost = testHelper.format(avgClassificationCost);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Eval_DS_ML," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataCost_Eval_DS_ML," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
@@ -454,7 +452,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataCost_Eval_MV_ML] Actual classification cost for majority vote classification");
 		String actualClassificationCost = testHelper.format(avgClassificationCost);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Eval_MV_ML," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataCost_Eval_MV_ML," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
@@ -467,7 +465,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = data.get("[DataCost_Eval_DS_Min] Actual classification cost for EM, min-cost classification");
 		String actualClassificationCost = testHelper.format(avgClassificationCost);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Eval_DS_Min," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataCost_Eval_DS_Min," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 
@@ -479,7 +477,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataCost_Eval_MV_Min] Actual classification cost for naive min-cost classification");
 		String actualClassificationCost = testHelper.format(avgClassificationCost);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Eval_MV_Min," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataCost_Eval_MV_Min," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
@@ -491,7 +489,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataCost_Eval_DS_Soft] Actual classification cost for EM, soft-label classification");
 		String actualClassificationCost = testHelper.format(avgClassificationCost);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Eval_DS_Soft," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataCost_Eval_DS_Soft," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
@@ -503,7 +501,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataCost_Eval_MV_Soft] Actual classification cost for naive soft-label classification");
 		String actualClassificationCost = testHelper.format(avgClassificationCost);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataCost_Eval_MV_Soft," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataCost_Eval_MV_Soft," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
@@ -516,7 +514,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataQuality_Estm_DS_ML] Estimated data quality, EM algorithm, maximum likelihood");
 		String actualClassificationCost = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Estm_DS_ML," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataQuality_Estm_DS_ML," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
@@ -529,7 +527,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataQuality_Estm_MV_ML] Estimated data quality, naive majority label");
 		String actualClassificationCost = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Estm_MV_ML," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataQuality_Estm_MV_ML," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 	
@@ -542,7 +540,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataQuality_Estm_DS_Exp] Estimated data quality, EM algorithm, soft label");
 		String actualClassificationCost = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Estm_DS_Exp," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataQuality_Estm_DS_Exp," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
 	
@@ -555,7 +553,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataQuality_Estm_MV_Exp] Estimated data quality, naive soft label");
 		String actualClassificationCost = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Estm_MV_Exp," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataQuality_Estm_MV_Exp," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
 	
@@ -568,7 +566,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataQuality_Estm_DS_Min] Estimated data quality, EM algorithm, mincost");
 		String actualClassificationCost = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Estm_DS_Min," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataQuality_Estm_DS_Min," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
 	
@@ -581,7 +579,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataQuality_Estm_MV_Min] Estimated data quality, naive mincost label");
 		String actualClassificationCost = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Estm_MV_Min," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataQuality_Estm_MV_Min," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
 	
@@ -593,7 +591,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataQuality_Eval_DS_ML] Actual data quality, EM algorithm, maximum likelihood");
 		String actualClassificationCost =  testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Eval_DS_ML," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataQuality_Eval_DS_ML," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
 	
@@ -605,7 +603,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataQuality_Eval_MV_ML] Actual data quality, naive majority label");
 		String actualClassificationCost = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Eval_MV_ML," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataQuality_Eval_MV_ML," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
 	
@@ -617,7 +615,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataQuality_Eval_DS_Min] Actual data quality, EM algorithm, mincost");
 		String actualClassificationCost = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Eval_DS_Min," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataQuality_Eval_DS_Min," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
 	
@@ -629,7 +627,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataQuality_Eval_MV_Min] Actual data quality, naive mincost label");
 		String actualClassificationCost = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Eval_MV_Min," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataQuality_Eval_MV_Min," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
 	
@@ -640,7 +638,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataQuality_Eval_DS_Soft] Actual data quality, EM algorithm, soft label");
 		String actualClassificationCost = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Eval_DS_Soft," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataQuality_Eval_DS_Soft," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
 	
@@ -651,7 +649,7 @@ public class GALBaseScenarios {
 		
 		String expectedClassificationCost = dataQuality.get("[DataQuality_Eval_MV_Soft] Actual data quality, naive soft label");
 		String actualClassificationCost = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "DataQuality_Eval_MV_Soft," + expectedClassificationCost + "," + actualClassificationCost);
+		fileWriter.write("DataQuality_Eval_MV_Soft," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
 	
@@ -663,7 +661,7 @@ public class GALBaseScenarios {
 		
 		String expectedQuality = workerQuality.get("[WorkerQuality_Estm_DS_Exp_n] Estimated worker quality (non-weighted, DS_Exp metric)");
 		String actualQuality = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Estm_DS_Exp_n," + expectedQuality + "," + actualQuality);
+		fileWriter.write("WorkerQuality_Estm_DS_Exp_n," + expectedQuality + "," + actualQuality);
 		assertEquals(expectedQuality, actualQuality);
 	}
 	
@@ -674,7 +672,7 @@ public class GALBaseScenarios {
 		
 		String expectedQuality = workerQuality.get("[WorkerQuality_Estm_DS_Exp_w] Estimated worker quality (weighted, DS_Exp metric)");
 		String actualQuality = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Estm_DS_Exp_w," + expectedQuality + "," + actualQuality);
+		fileWriter.write("WorkerQuality_Estm_DS_Exp_w," + expectedQuality + "," + actualQuality);
 		assertEquals(expectedQuality, actualQuality);
 	}
 	
@@ -685,7 +683,7 @@ public class GALBaseScenarios {
 		
 		String expectedQuality = workerQuality.get("[WorkerQuality_Estm_DS_ML_n] Estimated worker quality (non-weighted, DS_ML metric)");
 		String actualQuality = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Estm_DS_ML_n," + expectedQuality + "," + actualQuality);
+		fileWriter.write("WorkerQuality_Estm_DS_ML_n," + expectedQuality + "," + actualQuality);
 		assertEquals(expectedQuality, actualQuality);
 	}
 	
@@ -696,7 +694,7 @@ public class GALBaseScenarios {
 		
 		String expectedQuality = workerQuality.get("[WorkerQuality_Estm_DS_ML_w] Estimated worker quality (weighted, DS_ML metric)");
 		String actualQuality = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Estm_DS_ML_w," + expectedQuality + "," + actualQuality);
+		fileWriter.write("WorkerQuality_Estm_DS_ML_w," + expectedQuality + "," + actualQuality);
 		assertEquals(expectedQuality, actualQuality);
 	}
 	
@@ -707,7 +705,7 @@ public class GALBaseScenarios {
 		
 		String expectedQuality = workerQuality.get("[WorkerQuality_Estm_DS_Min_n] Estimated worker quality (non-weighted, DS_Min metric)");
 		String actualQuality = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Estm_DS_Min_n," + expectedQuality + "," + actualQuality);
+		fileWriter.write("WorkerQuality_Estm_DS_Min_n," + expectedQuality + "," + actualQuality);
 		assertEquals(expectedQuality, actualQuality);
 	}
 
@@ -719,7 +717,7 @@ public class GALBaseScenarios {
 		
 		String expectedQuality = workerQuality.get("[WorkerQuality_Estm_DS_Min_w] Estimated worker quality (weighted, DS_Min metric)");
 		String actualQuality = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Estm_DS_Min_w," + expectedQuality + "," + actualQuality);
+		fileWriter.write("WorkerQuality_Estm_DS_Min_w," + expectedQuality + "," + actualQuality);
 		assertEquals(expectedQuality, actualQuality);
 	}
 
@@ -730,7 +728,7 @@ public class GALBaseScenarios {
 		
 		String expectedQuality = workerQuality.get("[WorkerQuality_Eval_DS_Exp_n] Actual worker quality (non-weighted, DS_Exp metric)");
 		String actualQuality = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Eval_DS_Exp_n," + expectedQuality + "," + actualQuality);
+		fileWriter.write("WorkerQuality_Eval_DS_Exp_n," + expectedQuality + "," + actualQuality);
 		assertEquals(expectedQuality, actualQuality);
 	}
 	
@@ -741,7 +739,7 @@ public class GALBaseScenarios {
 		
 		String expectedQuality = workerQuality.get("[WorkerQuality_Eval_DS_Exp_w] Actual worker quality (weighted, DS_Exp metric)");
 		String actualQuality = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Eval_DS_Exp_w," + expectedQuality + "," + actualQuality);
+		fileWriter.write("WorkerQuality_Eval_DS_Exp_w," + expectedQuality + "," + actualQuality);
 		assertEquals(expectedQuality, actualQuality);
 	}
 
@@ -753,7 +751,7 @@ public class GALBaseScenarios {
 		
 		String expectedQuality = workerQuality.get("[WorkerQuality_Eval_DS_ML_n] Actual worker quality (non-weighted, DS_ML metric)");
 		String actualQuality = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Eval_DS_ML_n," + expectedQuality + "," + actualQuality);
+		fileWriter.write("WorkerQuality_Eval_DS_ML_n," + expectedQuality + "," + actualQuality);
 		assertEquals(expectedQuality, actualQuality);
 	}
 	
@@ -764,7 +762,7 @@ public class GALBaseScenarios {
 		
 		String expectedQuality = workerQuality.get("[WorkerQuality_Eval_DS_ML_w] Actual worker quality (weighted, DS_ML metric)");
 		String actualQuality = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Eval_DS_ML_w," + expectedQuality + "," + actualQuality);
+		fileWriter.write("WorkerQuality_Eval_DS_ML_w," + expectedQuality + "," + actualQuality);
 		assertEquals(expectedQuality, actualQuality);
 	}
 	
@@ -775,7 +773,7 @@ public class GALBaseScenarios {
 
 		String expectedQuality = workerQuality.get("[WorkerQuality_Eval_DS_Min_n] Actual worker quality (non-weighted, DS_Min metric)");
 		String actualQuality = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Eval_DS_Min_n," + expectedQuality + "," + actualQuality);
+		fileWriter.write("WorkerQuality_Eval_DS_Min_n," + expectedQuality + "," + actualQuality);
 		assertEquals(expectedQuality, actualQuality);
 	}
 	
@@ -786,7 +784,7 @@ public class GALBaseScenarios {
 		
 		String expectedQuality = workerQuality.get("[WorkerQuality_Eval_DS_Min_w] Actual worker quality (weighted, DS_Min metric)");
 		String actualQuality = testHelper.formatPercent(avgQuality);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "WorkerQuality_Eval_DS_Min_w," + expectedQuality + "," + actualQuality);
+		fileWriter.write("WorkerQuality_Eval_DS_Min_w," + expectedQuality + "," + actualQuality);
 		assertEquals(expectedQuality, actualQuality);
 	}
 	
@@ -801,7 +799,7 @@ public class GALBaseScenarios {
 		double labelsPerWorker = noAssignedLabels / data.getWorkers().size();
 		String expectedNoLabelsPerWorker = workerQuality.get("[Number of labels] Labels per worker");
 		String actualNoLabelsPerWorker = testHelper.format(labelsPerWorker);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "Labels per worker," + expectedNoLabelsPerWorker + "," + actualNoLabelsPerWorker);
+		fileWriter.write("Labels per worker," + expectedNoLabelsPerWorker + "," + actualNoLabelsPerWorker);
 		assertEquals(expectedNoLabelsPerWorker, actualNoLabelsPerWorker);	
 	}
 	
@@ -820,8 +818,41 @@ public class GALBaseScenarios {
 		avgNoGoldTests = avgNoGoldTests / workers.size();
 		String expectedNoGoldTestsPerWorker = workerQuality.get("[Gold Tests] Gold tests per worker");
 		String actualNoGoldTestsPerWorker = testHelper.format(avgNoGoldTests);
-		fileWriter.writeToFile(TEST_RESULTS_FILE, "Gold Tests per worker," + expectedNoGoldTestsPerWorker + "," + actualNoGoldTestsPerWorker);
+		fileWriter.write("Gold Tests per worker," + expectedNoGoldTestsPerWorker + "," + actualNoGoldTestsPerWorker);
 		assertEquals(expectedNoGoldTestsPerWorker, actualNoGoldTestsPerWorker);
 	}
-	
+
+	public void loadData(String categoriesPath, String goldLabelsPath, String assignedLabelsPath,
+						 String evaluationLabelsPath, String costsPath) {
+		categories = loadCategories(categoriesPath);
+		correctLabels = loadGoldLabels(goldLabelsPath);
+		assignedLabels = loadAssignedLabels(assignedLabelsPath);
+		evaluationLabels = loadEvaluationLabels(evaluationLabelsPath);
+		costs = loadCosts(costsPath);
+	}
+
+	public void loadData(String inputDir) {
+		loadData(inputDir + "categories.txt", inputDir + "correct.txt", inputDir + "input.txt", inputDir + "evaluation.txt", inputDir + "costs.txt");
+	}
+
+	public Collection<Category> loadCategories(String categoriesPath) {
+		return testHelper.LoadCategories(categoriesPath);
+	}
+
+	public Collection<LObject<String>> loadGoldLabels(String goldLabelsPath) {
+		return testHelper.LoadGoldLabels(goldLabelsPath);
+	}
+
+	public Collection<LObject<String>> loadEvaluationLabels(String evaluationLabelsPath) {
+		return testHelper.LoadEvaluationLabels(evaluationLabelsPath);
+	}
+
+	public Collection<AssignedLabel<String>> loadAssignedLabels(String assignedLabelsPath) {
+		return testHelper.LoadWorkerAssignedLabels(assignedLabelsPath);
+	}
+
+	public Set<MisclassificationCost> loadCosts(String costsPath) {
+		System.out.println("loadMissclasificationcost base");
+		return testHelper.LoadMisclassificationCosts(costsPath);
+	}
 }
