@@ -25,8 +25,8 @@ import static org.junit.Assert.assertEquals;
 
 public class GALBaseScenarios {
 
-	public final static int NO_ITERATIONS = 50;
-	public final static double EPSILON = 1e-3;
+	public final static int NO_ITERATIONS = 10;
+	public final static double EPSILON = 1e-6;
 
 	public final static String DATA_BASE_DIR = TestSettings.GAL_TESTDATA_BASEDIR;
 
@@ -46,22 +46,32 @@ public class GALBaseScenarios {
 
 	public void setUp() {
 		algorithm = new BatchDawidSkene();
+		algorithm.setEpsilon(EPSILON);
+		algorithm.setIterations(NO_ITERATIONS);
 		project = new NominalProject(algorithm);
 		data = project.getData();
 
 		project.initializeCategories(categories);
-
-		for (AssignedLabel<String> assign : assignedLabels) {
-			data.addAssign(assign);
-		}
+		algorithm.addMisclassificationCosts(costs);
 		for (LObject<String> gold : correctLabels) {
 			data.addGoldObject(gold);
 		}
+		for (AssignedLabel<String> assign : assignedLabels) {
+			data.addAssign(assign);
+		}
+		for (AssignedLabel<String> assign : data.getAssigns()) {
+			Worker<String> worker = data.getWorker(assign.getWorker().getName());
+			assign.setWorker(worker);
+			worker.addAssign(assign);
+			LObject<String> object = data.getObject(assign.getLobject().getName());
+			assign.setLobject(object);
+ 		}
 		for (LObject<String> eval : evaluationLabels) {
 			data.addEvaluationObject(eval);
 		}
-		algorithm.addMisclassificationCosts(costs);
-		algorithm.estimate(EPSILON, NO_ITERATIONS);
+
+		//algorithm.addMisclassificationCosts(costs);
+		algorithm.compute();
 
 		fileWriter.write("Metric,GAL value,Troia value");
 	}
@@ -271,7 +281,7 @@ public class GALBaseScenarios {
 		int noObjects = objects.size();
 		for (LObject<String> object : objects) {
 		    Map <String, Double> objectProbabilities = project.getObjectResults(object).getCategoryProbabilites();
-		    for (String categoryName : objectProbabilities.keySet()){
+		    for (String categoryName : objectProbabilities.keySet()) {
 		    	categoryProbabilities.put(categoryName, (categoryProbabilities.get(categoryName) + objectProbabilities.get(categoryName)));    	
 		    }
 		}
@@ -311,7 +321,7 @@ public class GALBaseScenarios {
 		
 		//calculate the average probability value for each category
 		for (String categoryName : algorithm.getData().getCategoriesNames()){
-			categoryProbabilities.put(categoryName, categoryProbabilities.get(categoryName)/noObjects);
+			categoryProbabilities.put(categoryName, categoryProbabilities.get(categoryName) / noObjects);
 		}
 		
 		for (String categoryName : algorithm.getData().getCategoriesNames()){
@@ -852,7 +862,6 @@ public class GALBaseScenarios {
 	}
 
 	public Set<MisclassificationCost> loadCosts(String costsPath) {
-		System.out.println("loadMissclasificationcost base");
 		return testHelper.LoadMisclassificationCosts(costsPath);
 	}
 }

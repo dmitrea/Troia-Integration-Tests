@@ -7,6 +7,9 @@ public class FileWriters {
 
 	private String path;
 
+	public FileWriters() {
+	}
+
 	public FileWriters(String path) {
 		this.path = path;
 		createNewFile(path);
