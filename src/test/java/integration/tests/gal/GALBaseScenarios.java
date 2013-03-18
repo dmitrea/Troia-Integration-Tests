@@ -272,7 +272,7 @@ public class GALBaseScenarios {
 		//iterate through the datum objects and calculate the sum of the probabilities associated  to each category
 		int noObjects = objects.size();
 		for (LObject<String> object : objects) {
-		    Map <String, Double> objectProbabilities = ds.calculateDistribution(object);
+		    Map <String, Double> objectProbabilities = project.getObjectResults(object).getCategoryProbabilites();
 		    for (String categoryName : objectProbabilities.keySet()){
 		    	categoryProbabilities.put(categoryName, (categoryProbabilities.get(categoryName) + objectProbabilities.get(categoryName)));    	
 		    }
@@ -305,7 +305,7 @@ public class GALBaseScenarios {
 		//iterate through the datum objects and calculate the sum of the probabilities associated  to each category
 		int noObjects = objects.size();
 		for (LObject<String> object : objects){
-		    Map <String, Double> objectProbabilities = ds.calculateDistribution(object);
+		    Map <String, Double> objectProbabilities = project.getObjectResults(object).getCategoryProbabilites();
 		    for (String categoryName : objectProbabilities.keySet()){
 		    	categoryProbabilities.put(categoryName, (categoryProbabilities.get(categoryName) + objectProbabilities.get(categoryName)));    	
 		    }
