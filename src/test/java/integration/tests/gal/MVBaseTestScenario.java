@@ -5,7 +5,6 @@ import com.datascience.core.nominal.decision.ILabelProbabilityDistributionCostCa
 import com.datascience.core.nominal.decision.LabelProbabilityDistributionCostCalculators;
 import com.datascience.mv.BatchMV;
 import org.junit.Test;
-import test.java.integration.helpers.TestSettings;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,8 +14,6 @@ import static org.junit.Assert.assertEquals;
 
 
 public class MVBaseTestScenario extends BaseTestScenario {
-
-	public final static String DATA_BASE_DIR = TestSettings.GAL_TESTDATA_BASEDIR;
 
 	public static class MVTestInitializer extends DefaultTestInitializer {
 

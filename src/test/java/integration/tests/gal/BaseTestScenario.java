@@ -27,6 +27,8 @@ import java.util.Set;
 
 public class BaseTestScenario {
 
+	public final static String DATA_BASE_DIR = TestSettings.GAL_TESTDATA_BASEDIR;
+
 	protected TestHelpers testHelper = new TestHelpers();
 	protected FileWriters fileWriter;
 	protected SummaryResultsParser summaryResultsParser;
