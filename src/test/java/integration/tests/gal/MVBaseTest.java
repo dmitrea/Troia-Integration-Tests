@@ -84,31 +84,6 @@ public class MVBaseTest extends BaseTest {
 		fileWriter.write("DataCost_Estm_MV_Exp," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
-	@Test
-	public void test_DataCost_Estm_NoVote_Exp() {
-		HashMap<String, String> dataQuality= summaryResultsParser.getDataQuality();
-		ILabelProbabilityDistributionCostCalculator	labelProbabilityDistributionCostCalculator = LabelProbabilityDistributionCostCalculators.get("EXPECTEDCOST");
-
-		double avgClassificationCost = estimateMissclassificationCost(labelProbabilityDistributionCostCalculator, null);
-
-		String expectedClassificationCost = dataQuality.get("[DataCost_Estm_NoVote_Exp] Baseline classification cost (random spammer)");
-		String actualClassificationCost = testHelper.format(avgClassificationCost);
-		fileWriter.write("DataCost_Estm_NoVote_Exp," + expectedClassificationCost + "," + actualClassificationCost);
-		assertEquals(expectedClassificationCost, actualClassificationCost);
-	}
-
-	@Test
-	public void test_DataCost_Estm_NoVote_Min() {
-		HashMap<String, String> dataQuality = summaryResultsParser.getDataQuality();
-		ILabelProbabilityDistributionCostCalculator	labelProbabilityDistributionCostCalculator = LabelProbabilityDistributionCostCalculators.get("MINCOST");
-
-		double avgClassificationCost = estimateMissclassificationCost(labelProbabilityDistributionCostCalculator, null);
-
-		String expectedClassificationCost = dataQuality.get("[DataCost_Estm_NoVote_Min] Baseline classification cost (strategic spammer)");
-		String actualClassificationCost = testHelper.format(avgClassificationCost);
-		fileWriter.write("DataCost_Estm_NoVote_Min," + expectedClassificationCost + "," + actualClassificationCost);
-		assertEquals(expectedClassificationCost, actualClassificationCost);
-	}
 
 	@Test
 	public void test_DataCost_Estm_MV_ML() {

@@ -1,8 +1,11 @@
 package test.java.integration.tests.gal;
 
 import com.datascience.core.base.AssignedLabel;
+import com.datascience.core.base.Category;
 import com.datascience.core.base.LObject;
 import com.datascience.core.base.Worker;
+import com.datascience.core.nominal.NominalData;
+import com.datascience.utils.ProbabilityDistributions;
 import com.datascience.core.nominal.decision.ILabelProbabilityDistributionCostCalculator;
 import com.datascience.core.nominal.decision.LabelProbabilityDistributionCostCalculators;
 import com.datascience.gal.BatchDawidSkene;
@@ -96,6 +99,36 @@ public class DSBaseTest extends BaseTest {
 	}
 
 	@Test
+	public void test_DataCost_Estm_NoVote_Exp() {
+		HashMap<String, String> dataQuality= summaryResultsParser.getDataQuality();
+		double avgClassificationCost = 0.0;
+		Map<String, Double> temp = ProbabilityDistributions.getPriorBasedDistribution(data);
+		for (Double val : temp.values()) {
+			avgClassificationCost += val;
+		}
+		avgClassificationCost /= temp.size();
+		String expectedClassificationCost = dataQuality.get("[DataCost_Estm_NoVote_Exp] Baseline classification cost (random spammer)");
+		String actualClassificationCost = testHelper.format(avgClassificationCost);
+		fileWriter.write("DataCost_Estm_NoVote_Exp," + expectedClassificationCost + "," + actualClassificationCost);
+		assertEquals(expectedClassificationCost, actualClassificationCost);
+	}
+
+	@Test
+	public void test_DataCost_Estm_NoVote_Min() {
+		HashMap<String, String> dataQuality = summaryResultsParser.getDataQuality();
+		double avgClassificationCost = 0.0;
+		Map<String, Double> temp = ProbabilityDistributions.getPriorBasedDistribution(data);
+		for (Double val : temp.values()) {
+			avgClassificationCost += val;
+		}
+		avgClassificationCost /= temp.size();
+		String expectedClassificationCost = dataQuality.get("[DataCost_Estm_NoVote_Min] Baseline classification cost (strategic spammer)");
+		String actualClassificationCost = testHelper.format(avgClassificationCost);
+		fileWriter.write("DataCost_Estm_NoVote_Min," + expectedClassificationCost + "," + actualClassificationCost);
+		assertEquals(expectedClassificationCost, actualClassificationCost);
+	}
+
+	@Test
 	public void test_DataCost_Estm_DS_Exp() {	
 		HashMap<String, String> dataQuality = summaryResultsParser.getDataQuality();
 		ILabelProbabilityDistributionCostCalculator labelProbabilityDistributionCostCalculator = LabelProbabilityDistributionCostCalculators.get("EXPECTEDCOST");
@@ -107,8 +140,6 @@ public class DSBaseTest extends BaseTest {
 		fileWriter.write("DataCost_Estm_DS_Exp," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
-	
-	
 
 	@Test
 	public void test_DataCost_Estm_DS_ML() {	
@@ -123,7 +154,6 @@ public class DSBaseTest extends BaseTest {
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 		
 	}	
-	
 
 	@Test
 	public void test_DataCost_Estm_DS_Min() {	
@@ -137,9 +167,7 @@ public class DSBaseTest extends BaseTest {
 		fileWriter.write("DataCost_Estm_DS_Min," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
-	
 
-	
 	@Test
 	public void test_DataCost_Eval_DS_ML() {	
 		HashMap<String, String> dataQuality = summaryResultsParser.getDataQuality();
@@ -151,8 +179,6 @@ public class DSBaseTest extends BaseTest {
 		fileWriter.write("DataCost_Eval_DS_ML," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
-	
-	
 
 	@Test
 	public void test_DataCost_Eval_DS_Min() {	
@@ -166,7 +192,6 @@ public class DSBaseTest extends BaseTest {
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
 
-
 	@Test
 	public void test_DataCost_Eval_DS_Soft() {	
 		HashMap<String, String> dataQuality = summaryResultsParser.getDataQuality();
@@ -178,7 +203,6 @@ public class DSBaseTest extends BaseTest {
 		fileWriter.write("DataCost_Eval_DS_Soft," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
-	
 
 	@Test
 	public void test_DataQuality_Estm_DS_ML() {	
@@ -192,7 +216,6 @@ public class DSBaseTest extends BaseTest {
 		fileWriter.write("DataQuality_Estm_DS_ML," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}	
-	
 
 	@Test
 	public void test_DataQuality_Estm_DS_Exp() {	
@@ -206,7 +229,6 @@ public class DSBaseTest extends BaseTest {
 		fileWriter.write("DataQuality_Estm_DS_Exp," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
-	
 
 	@Test
 	public void test_DataQuality_Estm_DS_Min() {	
@@ -220,7 +242,6 @@ public class DSBaseTest extends BaseTest {
 		fileWriter.write("DataQuality_Estm_DS_Min," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
-	
 
 	@Test
 	public void test_DataQuality_Eval_DS_ML() {	
@@ -233,7 +254,6 @@ public class DSBaseTest extends BaseTest {
 		fileWriter.write("DataQuality_Eval_DS_ML," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
-	
 
 	@Test
 	public void test_DataQuality_Eval_DS_Min() {	
@@ -246,7 +266,6 @@ public class DSBaseTest extends BaseTest {
 		fileWriter.write("DataQuality_Eval_DS_Min," + expectedClassificationCost + "," + actualClassificationCost);
 		assertEquals(expectedClassificationCost, actualClassificationCost);
 	}
-	
 
 	@Test
 	public void test_DataQuality_Eval_DS_Soft() {	
@@ -314,7 +333,6 @@ public class DSBaseTest extends BaseTest {
 		assertEquals(expectedQuality, actualQuality);
 	}
 
-	
 	@Test
 	public void test_WorkerQuality_Estm_DS_Min_w() {
 		HashMap<String, String> workerQuality = summaryResultsParser.getWorkerQuality();
@@ -348,7 +366,6 @@ public class DSBaseTest extends BaseTest {
 		assertEquals(expectedQuality, actualQuality);
 	}
 
-	
 	@Test
 	public void test_WorkerQuality_Eval_DS_ML_n() {
 		HashMap<String, String> workerQuality = summaryResultsParser.getWorkerQuality();
@@ -426,8 +443,4 @@ public class DSBaseTest extends BaseTest {
 		fileWriter.write("Gold Tests per worker," + expectedNoGoldTestsPerWorker + "," + actualNoGoldTestsPerWorker);
 		assertEquals(expectedNoGoldTestsPerWorker, actualNoGoldTestsPerWorker);
 	}
-
-
-
-
 }
