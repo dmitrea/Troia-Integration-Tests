@@ -2,7 +2,7 @@ package test.java.integration.tests.galc;
 
 import org.junit.Before;
 
-public class Test_JoinlyNormal extends GALCBaseScenarios{
+public class ContinuousJoinlyNormal extends ContinousBaseTestScenario {
 
 	public static String TEST_NAME = "joinlynormal";
 

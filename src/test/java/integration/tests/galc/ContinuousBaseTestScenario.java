@@ -22,7 +22,7 @@ import java.util.Map.Entry;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class GALCBaseScenarios {
+public class ContinuousBaseTestScenario {
 
 	public final static String DATA_BASE_DIR = TestSettings.GALC_TESTDATA_BASEDIR;
 	public final static String RESULTS_BASE_DIR = TestSettings.GALC_RESULTS_BASEDIR;
