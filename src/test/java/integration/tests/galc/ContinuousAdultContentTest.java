@@ -2,7 +2,7 @@ package test.java.integration.tests.galc;
 
 import org.junit.Before;
 
-public class ContinuousAdultContentTest extends ContinousBaseTestScenario {
+public class ContinuousAdultContentTest extends ContinuousBaseTestScenario {
 
 	public static String TEST_NAME = "adultcontent";
 
