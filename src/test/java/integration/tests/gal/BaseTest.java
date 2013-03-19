@@ -14,6 +14,7 @@ import com.datascience.gal.MisclassificationCost;
 import com.datascience.gal.Quality;
 import com.datascience.gal.evaluation.DataEvaluator;
 import com.datascience.gal.evaluation.WorkerEvaluator;
+import org.junit.Ignore;
 import test.java.integration.helpers.FileWriters;
 import test.java.integration.helpers.SummaryResultsParser;
 import test.java.integration.helpers.TestHelpers;
@@ -24,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+@Ignore
 public class BaseTest {
 
 	public final static String DATA_BASE_DIR = TestSettings.GAL_TESTDATA_BASEDIR;
