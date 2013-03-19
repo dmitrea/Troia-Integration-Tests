@@ -1,15 +1,12 @@
 package test.java.integration.tests.gal;
 
 import com.datascience.core.base.AssignedLabel;
-import com.datascience.core.base.Category;
 import com.datascience.core.base.LObject;
 import com.datascience.core.base.Worker;
-import com.datascience.core.nominal.NominalData;
-import com.datascience.utils.ProbabilityDistributions;
 import com.datascience.core.nominal.decision.ILabelProbabilityDistributionCostCalculator;
 import com.datascience.core.nominal.decision.LabelProbabilityDistributionCostCalculators;
 import com.datascience.gal.BatchDawidSkene;
-import org.junit.Ignore;
+import com.datascience.utils.ProbabilityDistributions;
 import org.junit.Test;
 import test.java.integration.helpers.TestSettings;
 
@@ -19,8 +16,8 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
-@Ignore
-public class DSBaseTest extends BaseTest {
+
+public class DSBaseTestScenario extends BaseTestScenario {
 
 	public final static int NO_ITERATIONS = 10;
 	public final static double EPSILON = 1e-6;

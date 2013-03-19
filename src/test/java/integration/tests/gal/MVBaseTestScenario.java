@@ -4,7 +4,6 @@ import com.datascience.core.base.LObject;
 import com.datascience.core.nominal.decision.ILabelProbabilityDistributionCostCalculator;
 import com.datascience.core.nominal.decision.LabelProbabilityDistributionCostCalculators;
 import com.datascience.mv.BatchMV;
-import org.junit.Ignore;
 import org.junit.Test;
 import test.java.integration.helpers.TestSettings;
 
@@ -14,8 +13,8 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 
-@Ignore
-public class MVBaseTest extends BaseTest {
+
+public class MVBaseTestScenario extends BaseTestScenario {
 
 	public final static String DATA_BASE_DIR = TestSettings.GAL_TESTDATA_BASEDIR;
 
@@ -26,7 +25,7 @@ public class MVBaseTest extends BaseTest {
 		}
 
 		@Override
-		public void loadData(BaseTest test) {
+		public void loadData(BaseTestScenario test) {
 			test.loadCategories(inputDir + "categories.txt");
 			test.loadAssignedLabels(inputDir + "input.txt");
 			test.loadGoldLabels(inputDir + "correct.txt");

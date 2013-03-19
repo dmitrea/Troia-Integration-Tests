@@ -1,9 +1,8 @@
 package test.java.integration.tests.gal;
 
-
 import org.junit.Before;
 
-public class MVBarzanMozafariTest extends MVBaseTest {
+public class MVBarzanMozafariTest extends MVBaseTestScenario {
 
 	public final static String TEST_NAME = "BarzanMozafari";
 
@@ -14,7 +13,7 @@ public class MVBarzanMozafariTest extends MVBaseTest {
 		}
 
 		@Override
-		public void loadData(BaseTest test) {
+		public void loadData(BaseTestScenario test) {
 			test.loadCategories(inputDir + "categories.txt");
 			test.loadAssignedLabels(inputDir + "input.txt");
 			test.loadGoldLabels(inputDir + "correct.txt");

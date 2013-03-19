@@ -2,7 +2,7 @@ package test.java.integration.tests.gal;
 
 import org.junit.Before;
 
-public class DSAdultContentWithEvaluationTest extends DSBaseTest {
+public class DSAdultContentWithEvaluationTest extends DSBaseTestScenario {
 	
 	public final static String TEST_NAME = "AdultContentWithEvaluation";
 

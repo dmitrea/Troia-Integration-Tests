@@ -14,7 +14,6 @@ import com.datascience.gal.MisclassificationCost;
 import com.datascience.gal.Quality;
 import com.datascience.gal.evaluation.DataEvaluator;
 import com.datascience.gal.evaluation.WorkerEvaluator;
-import org.junit.Ignore;
 import test.java.integration.helpers.FileWriters;
 import test.java.integration.helpers.SummaryResultsParser;
 import test.java.integration.helpers.TestHelpers;
@@ -25,10 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-@Ignore
-public class BaseTest {
 
-	public final static String DATA_BASE_DIR = TestSettings.GAL_TESTDATA_BASEDIR;
+public class BaseTestScenario {
 
 	protected TestHelpers testHelper = new TestHelpers();
 	protected FileWriters fileWriter;
@@ -39,8 +36,8 @@ public class BaseTest {
 
 	public static interface ITestInitializer {
 
-		void initialize(BaseTest test);
-		void loadData(BaseTest test);
+		void initialize(BaseTestScenario test);
+		void loadData(BaseTestScenario test);
 	}
 
 	public static class DefaultTestInitializer implements ITestInitializer {
@@ -56,13 +53,13 @@ public class BaseTest {
 		}
 
 		@Override
-		public void initialize(BaseTest test) {
+		public void initialize(BaseTestScenario test) {
 			test.setFileWriter(new FileWriters(outputDir + "Results_" + testName + ".csv"));
 			test.setSummaryResultsParser(new SummaryResultsParser(outputDir + "summary.txt"));
 		}
 
 		@Override
-		public void loadData(BaseTest test) {
+		public void loadData(BaseTestScenario test) {
 			test.loadData(inputDir);
 		}
 	}

@@ -2,7 +2,7 @@ package test.java.integration.tests.gal;
 
 import org.junit.Before;
 
-public class DSBarzanMozafariTest extends DSBaseTest {
+public class DSBarzanMozafariTest extends DSBaseTestScenario {
 
 	public final static String TEST_NAME = "BarzanMozafari";
 
@@ -13,7 +13,7 @@ public class DSBarzanMozafariTest extends DSBaseTest {
 		}
 
 		@Override
-		public void loadData(BaseTest test) {
+		public void loadData(BaseTestScenario test) {
 			test.loadCategories(inputDir + "categories.txt");
 			test.loadAssignedLabels(inputDir + "input.txt");
 			test.loadGoldLabels(inputDir + "correct.txt");
