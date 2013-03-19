@@ -100,6 +100,7 @@ public class DSBaseTest extends BaseTest {
 
 	@Test
 	public void test_DataCost_Estm_NoVote_Exp() {
+		//TODO this test does not make sense with the current form
 		HashMap<String, String> dataQuality= summaryResultsParser.getDataQuality();
 		double avgClassificationCost = 0.0;
 		Map<String, Double> temp = ProbabilityDistributions.getPriorBasedDistribution(data);
@@ -115,6 +116,7 @@ public class DSBaseTest extends BaseTest {
 
 	@Test
 	public void test_DataCost_Estm_NoVote_Min() {
+		//TODO this tests does not make sense with the current form
 		HashMap<String, String> dataQuality = summaryResultsParser.getDataQuality();
 		double avgClassificationCost = 0.0;
 		Map<String, Double> temp = ProbabilityDistributions.getPriorBasedDistribution(data);
