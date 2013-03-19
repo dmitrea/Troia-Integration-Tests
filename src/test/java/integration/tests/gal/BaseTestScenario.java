@@ -29,6 +29,9 @@ public class BaseTestScenario {
 
 	public final static String DATA_BASE_DIR = TestSettings.GAL_TESTDATA_BASEDIR;
 
+	protected String inputDir;
+	protected String outputDir;
+
 	protected TestHelpers testHelper = new TestHelpers();
 	protected FileWriters fileWriter;
 	protected SummaryResultsParser summaryResultsParser;
@@ -36,79 +39,52 @@ public class BaseTestScenario {
 	protected NominalProject project;
 	protected NominalData data;
 
-	public static interface ITestInitializer {
+	public static interface IDataLoader {
 
-		void initialize(BaseTestScenario test);
-		void loadData(BaseTestScenario test);
+		void load(BaseTestScenario test);
 	}
 
-	public static class DefaultTestInitializer implements ITestInitializer {
-
-		protected String testName;
-		protected String inputDir;
-		protected String outputDir;
-
-		public DefaultTestInitializer(String testName, String baseDir) {
-			this.testName = testName;
-			inputDir = baseDir + testName + TestSettings.FILEPATH_SEPARATOR + "input" + TestSettings.FILEPATH_SEPARATOR;
-			outputDir = baseDir + testName + TestSettings.FILEPATH_SEPARATOR + "output" + TestSettings.FILEPATH_SEPARATOR;
-		}
-
-		@Override
-		public void initialize(BaseTestScenario test) {
-			test.setFileWriter(new FileWriters(outputDir + "Results_" + testName + ".csv"));
-			test.setSummaryResultsParser(new SummaryResultsParser(outputDir + "summary.txt"));
-		}
-
-		@Override
-		public void loadData(BaseTestScenario test) {
-			test.loadData(inputDir);
-		}
-	}
-
-	public void setUp(NominalAlgorithm algorithm, ITestInitializer testInitializer) {
+	public void setUp(NominalAlgorithm algorithm, String testName, IDataLoader dataLoader) {
 		project = new NominalProject(algorithm);
 		data = project.getData();
-		testInitializer.initialize(this);
-		testInitializer.loadData(this);
+		inputDir = DATA_BASE_DIR + testName + TestSettings.FILEPATH_SEPARATOR + "input" + TestSettings.FILEPATH_SEPARATOR;
+		outputDir = DATA_BASE_DIR + testName + TestSettings.FILEPATH_SEPARATOR + "output" + TestSettings.FILEPATH_SEPARATOR;
+		fileWriter = new FileWriters(outputDir + "Results_" + testName + ".csv");
+		summaryResultsParser = new SummaryResultsParser(outputDir + "summary.txt");
+		dataLoader.load(this);
 		project.getAlgorithm().compute();
 		fileWriter.write("Metric,GAL value,Troia value");
 	}
 
-	public void loadData(String categoriesPath, String assignedLabelsPath, String goldLabelsPath,
-						 String evaluationLabelsPath, String costsPath) {
-		loadCategories(categoriesPath);
-		loadAssignedLabels(assignedLabelsPath);
-		loadGoldLabels(goldLabelsPath);
-		loadEvaluationLabels(evaluationLabelsPath);
-		loadCosts(costsPath);
+	public void loadData() {
+		loadCategories();
+		loadAssignedLabels();
+		loadGoldLabels();
+		loadEvaluationLabels();
+		loadCosts();
 	}
 
-	public void loadData(String inputDir) {
-		loadData(inputDir + "categories.txt", inputDir + "input.txt", inputDir + "correct.txt", inputDir + "evaluation.txt", inputDir + "costs.txt");
-	}
-
-	public void loadCategories(String categoriesPath) {
-		Collection<Category> categories = testHelper.LoadCategories(categoriesPath);
+	public void loadCategories() {
+		Collection<Category> categories = testHelper.LoadCategories(inputDir + "categories.txt");
 		project.initializeCategories(categories);
 	}
 
-	public void loadGoldLabels(String goldLabelsPath) {
-		Collection<LObject<String>> goldLabels = testHelper.LoadGoldLabels(goldLabelsPath);
+	public void loadGoldLabels() {
+		Collection<LObject<String>> goldLabels = testHelper.LoadGoldLabels(inputDir + "correct.txt");
 		for (LObject<String> goldLabel : goldLabels) {
 			data.addGoldObject(goldLabel);
 		}
 	}
 
-	public void loadEvaluationLabels(String evaluationLabelsPath) {
-		Collection<LObject<String>> evaluationLabels = testHelper.LoadEvaluationLabels(evaluationLabelsPath);
+	public void loadEvaluationLabels() {
+		Collection<LObject<String>> evaluationLabels = testHelper.LoadEvaluationLabels(inputDir + "evaluation.txt");
 		for (LObject<String> evaluationLabel : evaluationLabels) {
 			data.addEvaluationObject(evaluationLabel);
 		}
 	}
 
-	public void loadAssignedLabels(String assignedLabelsPath) {
-		Collection<AssignedLabel<String>> assignedLabels = testHelper.LoadWorkerAssignedLabels(assignedLabelsPath);
+	public void loadAssignedLabels() {
+		Collection<AssignedLabel<String>> assignedLabels = testHelper.LoadWorkerAssignedLabels(inputDir + "input.txt");
 		for (AssignedLabel<String> assign : assignedLabels) {
 			data.addAssign(assign);
 		}
@@ -121,8 +97,8 @@ public class BaseTestScenario {
 		}
 	}
 
-	public void loadCosts(String costsPath) {
-		Set<MisclassificationCost> costs = testHelper.LoadMisclassificationCosts(costsPath);
+	public void loadCosts() {
+		Set<MisclassificationCost> costs = testHelper.LoadMisclassificationCosts(inputDir + "costs.txt");
 		// XXX only for DawidSkene algorithms.
 		AbstractDawidSkene algorithm = (AbstractDawidSkene) project.getAlgorithm();
 		algorithm.addMisclassificationCosts(costs);

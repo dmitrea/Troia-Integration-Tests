@@ -8,6 +8,6 @@ public class MVAdultContentWithEvaluationTest extends MVBaseTestScenario {
 
 	@Before
 	public void setUp() {
-		super.setUp(new MVTestInitializer(TEST_NAME));
+		super.setUp(TEST_NAME, new MVTestInitializer());
 	}
 }

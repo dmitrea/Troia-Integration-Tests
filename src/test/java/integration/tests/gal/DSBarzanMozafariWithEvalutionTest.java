@@ -8,6 +8,6 @@ public class DSBarzanMozafariWithEvalutionTest extends DSBaseTestScenario {
 
 	@Before
 	public void setUp() {
-		super.setUp(new DefaultTestInitializer(TEST_NAME, DATA_BASE_DIR));
+		super.setUp(TEST_NAME, new DefaultDataLoader());
 	}
 }

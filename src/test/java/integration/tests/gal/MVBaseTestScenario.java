@@ -15,23 +15,19 @@ import static org.junit.Assert.assertEquals;
 
 public class MVBaseTestScenario extends BaseTestScenario {
 
-	public static class MVTestInitializer extends DefaultTestInitializer {
-
-		public MVTestInitializer(String testName) {
-			super(testName, DATA_BASE_DIR);
-		}
+	public static class MVTestInitializer implements IDataLoader {
 
 		@Override
-		public void loadData(BaseTestScenario test) {
-			test.loadCategories(inputDir + "categories.txt");
-			test.loadAssignedLabels(inputDir + "input.txt");
-			test.loadGoldLabels(inputDir + "correct.txt");
-			test.loadEvaluationLabels(inputDir + "evaluation.txt");
+		public void load(BaseTestScenario test) {
+			test.loadCategories();
+			test.loadAssignedLabels();
+			test.loadGoldLabels();
+			test.loadEvaluationLabels();
 		}
 	}
 
-	public void setUp(ITestInitializer testInitializer) {
-		setUp(new BatchMV(), testInitializer);
+	public void setUp(String testName, IDataLoader testInitializer) {
+		setUp(new BatchMV(), testName, testInitializer);
 	}
 
 	@Test

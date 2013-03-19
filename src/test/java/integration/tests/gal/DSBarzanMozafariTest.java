@@ -6,22 +6,16 @@ public class DSBarzanMozafariTest extends DSBaseTestScenario {
 
 	public final static String TEST_NAME = "BarzanMozafari";
 
-	public static class InitilizerWithoutEvaluation extends DefaultTestInitializer {
-
-		public InitilizerWithoutEvaluation(String testName) {
-			super(testName, DATA_BASE_DIR);
-		}
-
-		@Override
-		public void loadData(BaseTestScenario test) {
-			test.loadCategories(inputDir + "categories.txt");
-			test.loadAssignedLabels(inputDir + "input.txt");
-			test.loadGoldLabels(inputDir + "correct.txt");
-		}
-	}
-
 	@Before
 	public void setUp() {
-		super.setUp(new InitilizerWithoutEvaluation(TEST_NAME));
+		super.setUp(TEST_NAME, new IDataLoader() {
+			@Override
+			public void load(BaseTestScenario test) {
+				test.loadCategories();
+				test.loadAssignedLabels();
+				test.loadGoldLabels();
+				test.loadCosts();
+			}
+		});
 	}
 }

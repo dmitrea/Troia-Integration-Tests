@@ -8,7 +8,6 @@ import com.datascience.core.nominal.decision.LabelProbabilityDistributionCostCal
 import com.datascience.gal.BatchDawidSkene;
 import com.datascience.utils.ProbabilityDistributions;
 import org.junit.Test;
-import test.java.integration.helpers.TestSettings;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,13 +20,20 @@ public class DSBaseTestScenario extends BaseTestScenario {
 
 	public final static int NO_ITERATIONS = 10;
 	public final static double EPSILON = 1e-6;
-	public final static String DATA_BASE_DIR = TestSettings.GAL_TESTDATA_BASEDIR;
 
-	public void setUp(ITestInitializer testInitializer) {
+	public static class DefaultDataLoader implements IDataLoader {
+
+		@Override
+		public void load(BaseTestScenario test) {
+			test.loadData();
+		}
+	}
+
+	public void setUp(String testName, IDataLoader dataLoader) {
 		BatchDawidSkene algorithm = new BatchDawidSkene();
 		algorithm.setEpsilon(EPSILON);
 		algorithm.setIterations(NO_ITERATIONS);
-		setUp(algorithm, testInitializer);
+		setUp(algorithm, testName, dataLoader);
 	}
 
 	@Test
