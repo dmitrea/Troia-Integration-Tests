@@ -72,14 +72,14 @@ public class BaseTestScenario {
 	public void loadGoldLabels() {
 		Collection<LObject<String>> goldLabels = testHelper.LoadGoldLabels(inputDir + "correct.txt");
 		for (LObject<String> goldLabel : goldLabels) {
-			data.addGoldObject(goldLabel);
+			data.addObject(goldLabel);
 		}
 	}
 
 	public void loadEvaluationLabels() {
 		Collection<LObject<String>> evaluationLabels = testHelper.LoadEvaluationLabels(inputDir + "evaluation.txt");
 		for (LObject<String> evaluationLabel : evaluationLabels) {
-			data.addEvaluationObject(evaluationLabel);
+			data.addObject(evaluationLabel);
 		}
 	}
 
