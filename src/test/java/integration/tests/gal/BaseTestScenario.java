@@ -72,14 +72,18 @@ public class BaseTestScenario {
 	public void loadGoldLabels() {
 		Collection<LObject<String>> goldLabels = testHelper.LoadGoldLabels(inputDir + "correct.txt");
 		for (LObject<String> goldLabel : goldLabels) {
-			data.addObject(goldLabel);
+			LObject<String> object = data.getOrCreateObject(goldLabel.getName());
+			object.setGoldLabel(goldLabel.getGoldLabel());
+			data.addObject(object);
 		}
 	}
 
 	public void loadEvaluationLabels() {
 		Collection<LObject<String>> evaluationLabels = testHelper.LoadEvaluationLabels(inputDir + "evaluation.txt");
 		for (LObject<String> evaluationLabel : evaluationLabels) {
-			data.addObject(evaluationLabel);
+			LObject<String> object = data.getOrCreateObject(evaluationLabel.getName());
+			object.setEvaluationLabel(evaluationLabel.getEvaluationLabel());
+			data.addObject(object);
 		}
 	}
 
@@ -89,10 +93,10 @@ public class BaseTestScenario {
 			data.addAssign(assign);
 		}
 		for (AssignedLabel<String> assign : data.getAssigns()) {
-			Worker<String> worker = data.getWorker(assign.getWorker().getName());
+			Worker<String> worker = data.getOrCreateWorker(assign.getWorker().getName());
 			assign.setWorker(worker);
 			worker.addAssign(assign);
-			LObject<String> object = data.getObject(assign.getLobject().getName());
+			LObject<String> object = data.getOrCreateObject(assign.getLobject().getName());
 			assign.setLobject(object);
 		}
 	}
