@@ -90,14 +90,13 @@ public class BaseTestScenario {
 	public void loadAssignedLabels() {
 		Collection<AssignedLabel<String>> assignedLabels = testHelper.LoadWorkerAssignedLabels(inputDir + "input.txt");
 		for (AssignedLabel<String> assign : assignedLabels) {
-			data.addAssign(assign);
-		}
-		for (AssignedLabel<String> assign : data.getAssigns()) {
 			Worker<String> worker = data.getOrCreateWorker(assign.getWorker().getName());
 			assign.setWorker(worker);
-			worker.addAssign(assign);
 			LObject<String> object = data.getOrCreateObject(assign.getLobject().getName());
 			assign.setLobject(object);
+		}
+		for (AssignedLabel<String> assign : assignedLabels) {
+			data.addAssign(assign);
 		}
 	}
 
