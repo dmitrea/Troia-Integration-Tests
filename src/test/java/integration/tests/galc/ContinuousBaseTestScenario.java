@@ -1,84 +1,91 @@
 package test.java.integration.tests.galc;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import com.datascience.core.base.ContValue;
+import com.datascience.core.base.LObject;
+import com.datascience.core.base.Worker;
+import com.datascience.core.results.DatumContResults;
+import com.datascience.core.results.WorkerContResults;
+import com.datascience.galc.ContinuousIpeirotis;
+import com.datascience.galc.ContinuousProject;
+import com.datascience.galc.EmpiricalData;
+import org.junit.Test;
+import test.java.integration.helpers.FileWriters;
+import test.java.integration.helpers.ObjectsResultsParser;
+import test.java.integration.helpers.TestSettings;
+import test.java.integration.helpers.WorkersResultsParser;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import org.junit.Test;
-import test.java.integration.helpers.*;
+public class ContinuousBaseTestScenario {
 
-import com.datascience.core.base.Worker;
-import com.datascience.core.base.ContValue;
-import com.datascience.core.base.LObject;
-import com.datascience.galc.ContinuousIpeirotis;
-import com.datascience.galc.DatumContResults;
-import com.datascience.galc.WorkerContResults;
+	public final static String DATA_BASE_DIR = TestSettings.GALC_TESTDATA_BASEDIR;
+	public final static String RESULTS_BASE_DIR = TestSettings.GALC_RESULTS_BASEDIR;
 
-public class GALCBaseScenarios {
+	public final static int MAX_ITERATIONS = 20;
+	public final static double EPSILON = 1e-5;
+	public final static double TOLERANCE = 0.0000000001;
 
-	public static int MAX_ITERATIONS = 20;
-	public static double EPSILON = 1e-5;
-	public static double TOLERANCE = 0.0000000001;
-	public static FileWriters fileWriter;
-	public static ContinuousIpeirotis ci;
-	public static String testResultsFile;
-	public static String resObjectsFile;
-	public static String resWorkersFile;
-	public static ObjectsResultsParser objectsResultsParser;
-	public static WorkersResultsParser workersResultsParser;
+	protected ContinuousProject project;
+	protected ContinuousIpeirotis algorithm;
+
+	protected String inputDir;
+	protected String outputDir;
+
+	protected ObjectsResultsParser objectsResultsParser;
+	protected WorkersResultsParser workersResultsParser;
+	protected FileWriters fileWriter;
 	
-	public static class Setup{
-		public ContinuousIpeirotis contIpeirotis;
-		public String testResultsFile;
-		public String resultsObjectsFile;
-		public String resultsWorkersFile;
-		
-		public Setup(ContinuousIpeirotis ci, String tResultsFile, String resObjectsFile, String resWorkersFile) {
-			testResultsFile = tResultsFile;
-			contIpeirotis = ci;
-			resultsObjectsFile = resObjectsFile;
-			resultsWorkersFile = resWorkersFile;
-		}		
-	}
-	
-	public static void initSetup(Setup testSetup){
-		ci = testSetup.contIpeirotis;
-		testResultsFile = testSetup.testResultsFile;
-		resObjectsFile = testSetup.resultsObjectsFile;
-		resWorkersFile = testSetup.resultsWorkersFile;
-		ci.estimate(EPSILON, MAX_ITERATIONS);
+	public void setUp() {
+		algorithm = new ContinuousIpeirotis();
+		project = new ContinuousProject(algorithm);
+
+		EmpiricalData empData = new EmpiricalData();
+
+		empData.loadLabelFile(inputDir + "assignedLabels.txt");
+		empData.loadGoldLabelsFile(inputDir + "goldObjects.txt");
+		empData.loadTrueObjectData(inputDir + "evaluationObjects.txt");
+
+		algorithm.setData(empData);
+		algorithm.estimate(EPSILON, MAX_ITERATIONS);
 		
 		//prepare the test results file
-		fileWriter = new FileWriters();
-		fileWriter.createNewFile(testResultsFile);
-		fileWriter.writeToFile(testResultsFile, "Metric,Original GALC value,Troia value");
+		fileWriter = new FileWriters(RESULTS_BASE_DIR + "Results_AdultContent.csv");
+		fileWriter.write("Metric,Original GALC value,Troia value");
 	
 		objectsResultsParser = new ObjectsResultsParser();
-		objectsResultsParser.ParseResultsObjectsFile(resObjectsFile);
+		objectsResultsParser.ParseResultsObjectsFile(outputDir + "results-objects.txt");
 		
 		workersResultsParser = new WorkersResultsParser();
-		workersResultsParser.ParseWorkerResultsFile(resWorkersFile);
+		workersResultsParser.ParseWorkerResultsFile(outputDir + "results-workers.txt");
 	}
-	
+
+	public void setInputDir(String testName) {
+		inputDir = DATA_BASE_DIR + testName + TestSettings.FILEPATH_SEPARATOR + "input" + TestSettings.FILEPATH_SEPARATOR;
+	}
+
+	public void setOutputDir(String testName) {
+		outputDir = DATA_BASE_DIR + testName + TestSettings.FILEPATH_SEPARATOR + "output" + TestSettings.FILEPATH_SEPARATOR;
+	}
 
 	@Test
 	public void test_Objects_AverageLabel() {	
 		Map <String, Map<String, Double>> expEstObjects = objectsResultsParser.getEstimatedObjectValues(); 
-		Map<LObject<ContValue>, DatumContResults> objectsResult = ci.getObjectsResults();
+		Map<LObject<ContValue>, DatumContResults> objectsResult = algorithm.getObjectsResults();
 		Iterator<Entry<LObject<ContValue>, DatumContResults>> entries = objectsResult.entrySet().iterator();
 		while (entries.hasNext()) {
 			Entry<LObject<ContValue>, DatumContResults> entry = (Entry<LObject<ContValue>, DatumContResults>) entries.next();
 			LObject<ContValue> object = entry.getKey();
 			String objectName = object.getName();
-			Double actualAvgLabel = ci.getAverageLabel(object);
+			Double actualAvgLabel = algorithm.getAverageLabel(object);
 			Double expectedAvgLabel = expEstObjects.get(objectName).get("avgLabel");
 			
-			fileWriter.writeToFile(testResultsFile, "AvgLabel-" + objectName + "," + expectedAvgLabel + "," + actualAvgLabel);
+			fileWriter.write("AvgLabel-" + objectName + "," + expectedAvgLabel + "," + actualAvgLabel);
 			assertTrue(Math.abs(expectedAvgLabel - actualAvgLabel) < TOLERANCE);
 		}
 	}
@@ -86,7 +93,7 @@ public class GALCBaseScenarios {
 	@Test
 	public void test_Objects_EstimatedValues() {	
 		Map <String, Map<String, Double>> expEstObjects = objectsResultsParser.getEstimatedObjectValues(); 
-		Map<LObject<ContValue>, DatumContResults> objectsResult = ci.getObjectsResults();
+		Map<LObject<ContValue>, DatumContResults> objectsResult = algorithm.getObjectsResults();
 		Iterator<Entry<LObject<ContValue>, DatumContResults>> entries = objectsResult.entrySet().iterator();
 		while (entries.hasNext()) {
 			Entry<LObject<ContValue>, DatumContResults> entry = (Entry<LObject<ContValue>, DatumContResults>) entries.next();
@@ -99,8 +106,8 @@ public class GALCBaseScenarios {
 			Double expectedEstimatedValue = expEstObjects.get(objectName).get("estValue");
 			Double expectedEstimatedZeta = expEstObjects.get(objectName).get("estZeta");
 			
-			fileWriter.writeToFile(testResultsFile, "EstValue-" + objectName + "," + expectedEstimatedValue + "," + actualEstimatedValue);
-			fileWriter.writeToFile(testResultsFile, "EstValue-" + objectName + "," + expectedEstimatedZeta + "," + actualEstimatedZeta);
+			fileWriter.write("EstValue-" + objectName + "," + expectedEstimatedValue + "," + actualEstimatedValue);
+			fileWriter.write("EstValue-" + objectName + "," + expectedEstimatedZeta + "," + actualEstimatedZeta);
 			
 			assertTrue(Math.abs(expectedEstimatedValue - actualEstimatedValue) < TOLERANCE);
 			assertTrue(Math.abs(expectedEstimatedZeta - actualEstimatedZeta) < TOLERANCE);
@@ -111,7 +118,7 @@ public class GALCBaseScenarios {
 	@Test
 	public void test_Workers_Labels() {
 		Map <String, HashMap<String, Object>> expWorkersResults = workersResultsParser.getWorkersResults();
-		Map<Worker<ContValue>, WorkerContResults> workersResults = ci.getWorkersResults();
+		Map<Worker<ContValue>, WorkerContResults> workersResults = algorithm.getWorkersResults();
 		Iterator<Entry<Worker<ContValue>, WorkerContResults>> entries = workersResults.entrySet().iterator();
 		while (entries.hasNext()) {
 			Entry<Worker<ContValue>, WorkerContResults> entry = entries.next();
@@ -119,7 +126,7 @@ public class GALCBaseScenarios {
 			String workerName = worker.getName();
 			int expectedNoAssigns = Integer.parseInt(expWorkersResults.get(workerName).get("labels").toString()); 
 			int actualNoAssigns = worker.getAssigns().size();
-			fileWriter.writeToFile(testResultsFile, "NoAssigns-" + workerName + "," + expectedNoAssigns + "," + actualNoAssigns);
+			fileWriter.write("NoAssigns-" + workerName + "," + expectedNoAssigns + "," + actualNoAssigns);
 			assertEquals(expectedNoAssigns, actualNoAssigns);
 		}			
 	}
@@ -128,7 +135,7 @@ public class GALCBaseScenarios {
 	@Test
 	public void test_Workers_EstimatedValues() {
 		Map <String, HashMap<String, Object>> expWorkersResults = workersResultsParser.getWorkersResults();
-		Map<Worker<ContValue>, WorkerContResults> workersResults = ci.getWorkersResults();
+		Map<Worker<ContValue>, WorkerContResults> workersResults = algorithm.getWorkersResults();
 		Iterator<Entry<Worker<ContValue>, WorkerContResults>> entries = workersResults.entrySet().iterator();
 		while (entries.hasNext()) {
 			Entry<Worker<ContValue>, WorkerContResults> entry = entries.next();
@@ -143,9 +150,9 @@ public class GALCBaseScenarios {
 			Double actualEstSigma = workerContResults.getEst_sigma();
 			Double actualEstRho = workerContResults.getEst_rho();
 			
-			fileWriter.writeToFile(testResultsFile, "Est_Mu_" + workerName + "," + expectedEstMu + "," + actualEstMu);
-			fileWriter.writeToFile(testResultsFile, "Est_Sigma_" + workerName + "," + expectedEstSigma + "," + actualEstSigma);
-			fileWriter.writeToFile(testResultsFile, "Est_Rho_" + workerName + "," + expectedEstRho + "," + actualEstRho);
+			fileWriter.write("Est_Mu_" + workerName + "," + expectedEstMu + "," + actualEstMu);
+			fileWriter.write("Est_Sigma_" + workerName + "," + expectedEstSigma + "," + actualEstSigma);
+			fileWriter.write("Est_Rho_" + workerName + "," + expectedEstRho + "," + actualEstRho);
 			
 			assertTrue(Math.abs(expectedEstMu - actualEstMu) < TOLERANCE);
 			assertTrue(Math.abs(expectedEstSigma - actualEstSigma) < TOLERANCE);

@@ -22,6 +22,11 @@ public class SummaryResultsParser {
 		this.dataQuality = new HashMap<String, String>();
 		this.workerQuality = new HashMap<String, String>();
 	}
+
+	public SummaryResultsParser(String path) {
+		this();
+		ParseSummaryFile(path);
+	}
 	
 	public HashMap<String, String> getParameters() {
 		return parameters;
