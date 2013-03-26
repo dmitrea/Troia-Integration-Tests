@@ -4,8 +4,21 @@ import java.io.File;
 import java.io.FileWriter;
 
 public class FileWriters {
-	
-	
+
+	private String path;
+
+	public FileWriters() {
+	}
+
+	public FileWriters(String path) {
+		this.path = path;
+		createNewFile(path);
+	}
+
+	public void write(String dataText) {
+		writeToFile(path, dataText);
+	}
+
 	/**
 	 * Writes data to a given file
 	 * @param fileName
@@ -13,7 +26,8 @@ public class FileWriters {
 	 * @param dataText
 	 * 				The text to be written
 	 */
-	public void writeToFile(String fileName, String dataText){
+
+	public static void writeToFile(String fileName, String dataText){
 		try{
 			FileWriter fstream = new FileWriter(fileName, true);
 			BufferedWriter out = new BufferedWriter(fstream);
@@ -26,7 +40,7 @@ public class FileWriters {
 		}
 	}
 		
-	public void createNewFile(String filePathString){
+	public static void createNewFile(String filePathString){
 		try{
 			File f = new File(filePathString);
 			

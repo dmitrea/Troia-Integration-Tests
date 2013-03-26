@@ -1,21 +1,15 @@
 package test.java.integration.helpers;
 
+import com.datascience.core.base.AssignedLabel;
+import com.datascience.core.base.Category;
+import com.datascience.core.base.LObject;
+import com.datascience.gal.MisclassificationCost;
+import com.datascience.gal.dataGenerator.DataManager;
+
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Locale;
-import java.util.Map;
-
-import com.datascience.gal.dataGenerator.DataManager;
-import com.datascience.gal.AssignedLabel;
-import com.datascience.gal.Category;
-import com.datascience.gal.CorrectLabel;
-import com.datascience.gal.MisclassificationCost;
+import java.util.*;
 
 
 public class TestHelpers {
@@ -92,8 +86,8 @@ public class TestHelpers {
 	 * @param goldLabelsFileName
 	 * @return Collection<CorrectLabel>
 	 */
-	public Collection<CorrectLabel> LoadGoldLabels(String goldLabelsFileName){
-		Collection<CorrectLabel> goldLabels = new ArrayList<CorrectLabel>();
+	public Collection<LObject<String>> LoadGoldLabels(String goldLabelsFileName){
+		Collection<LObject<String>> goldLabels = new ArrayList<LObject<String>>();
 		
 		try{
 			goldLabels = dataManager.loadGoldLabelsFromFile(goldLabelsFileName);
@@ -104,23 +98,41 @@ public class TestHelpers {
 		
 		return goldLabels;
 	}
+
+	/**
+	 * Loads the evaluation labels from the given file
+	 * @param evaluationLabelsFileName
+	 * @return Collection<CorrectLabel>
+	 */
+	public Collection<LObject<String>> LoadEvaluationLabels(String evaluationLabelsFileName){
+		Collection<LObject<String>> goldLabels = new ArrayList<LObject<String>>();
+
+		try{
+			goldLabels = dataManager.loadEvaluationLabelsFromFile(evaluationLabelsFileName);
+		}
+		catch (FileNotFoundException ex){
+			ex.printStackTrace();
+		}
+
+		return goldLabels;
+	}
 	
 	/**
 	 * Loads the evaluation labels from the given file
 	 * @param evaluationLabelsFileName
 	 * @return Collection<CorrectLabel>
 	 */
-	public Collection<CorrectLabel> LoadEvaluationLabels(String evaluationLabelsFileName){
-		return LoadGoldLabels(evaluationLabelsFileName);
-	}
+//	public Collection<LObject<String>> LoadEvaluationLabels(String evaluationLabelsFileName){
+//		return LoadGoldLabels(evaluationLabelsFileName);
+//	}
 	
 	/**
 	 * Loads the worker assigned labels from the given file
 	 * @param labelsFileName
 	 * @return Collection <Label>
 	 */
-	public Collection<AssignedLabel> LoadWorkerAssignedLabels(String labelsFileName){
-		Collection <AssignedLabel> assignedLabels = new ArrayList<AssignedLabel>();
+	public Collection<AssignedLabel<String>> LoadWorkerAssignedLabels(String labelsFileName){
+		Collection <AssignedLabel<String>> assignedLabels = new ArrayList<AssignedLabel<String>>();
 		
 		try{
 			assignedLabels = dataManager.loadLabelsFromFile(labelsFileName);
