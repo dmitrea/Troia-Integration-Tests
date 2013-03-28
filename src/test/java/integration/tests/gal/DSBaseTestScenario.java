@@ -75,7 +75,7 @@ public class DSBaseTestScenario extends BaseTestScenario {
 		
 		//init the categoryProbabilities hashmap
 		HashMap <String, Double> categoryProbabilities = new HashMap<String, Double>();
-		for (String categoryName : data.getCategoriesNames()) {
+		for (String categoryName : data.getCategories()) {
 			categoryProbabilities.put(categoryName, 0.0);
 		}
 
@@ -89,10 +89,10 @@ public class DSBaseTestScenario extends BaseTestScenario {
 		}
 		
 		//calculate the average probability value for each category
-		for (String categoryName : data.getCategoriesNames()) {
+		for (String categoryName : data.getCategories()) {
 			categoryProbabilities.put(categoryName, categoryProbabilities.get(categoryName) / noObjects);
 		}
-		for (String categoryName : data.getCategoriesNames()){
+		for (String categoryName : data.getCategories()){
 			String metricName = "[DS_Pr[" + categoryName + "]] DS estimate for prior probability of category " + categoryName;
 			String expectedCategoryProbability = dataQuality.get(metricName);
 			String actualCategoryProbability = testHelper.format(categoryProbabilities.get(categoryName));
@@ -106,7 +106,7 @@ public class DSBaseTestScenario extends BaseTestScenario {
 		//TODO this test does not make sense with the current form
 		HashMap<String, String> dataQuality= summaryResultsParser.getDataQuality();
 		double avgClassificationCost = 0.0;
-		Map<String, Double> temp = ProbabilityDistributions.getPriorBasedDistribution(data);
+		Map<String, Double> temp = ProbabilityDistributions.getPriorBasedDistribution(data, project.getAlgorithm());
 		for (Double val : temp.values()) {
 			avgClassificationCost += val;
 		}
@@ -122,7 +122,7 @@ public class DSBaseTestScenario extends BaseTestScenario {
 		//TODO this tests does not make sense with the current form
 		HashMap<String, String> dataQuality = summaryResultsParser.getDataQuality();
 		double avgClassificationCost = 0.0;
-		Map<String, Double> temp = ProbabilityDistributions.getPriorBasedDistribution(data);
+		Map<String, Double> temp = ProbabilityDistributions.getPriorBasedDistribution(data, project.getAlgorithm());
 		for (Double val : temp.values()) {
 			avgClassificationCost += val;
 		}

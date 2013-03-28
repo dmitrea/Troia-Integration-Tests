@@ -14,7 +14,6 @@ public class DSBarzanMozafariTest extends DSBaseTestScenario {
 				test.loadCategories();
 				test.loadAssignedLabels();
 				test.loadGoldLabels();
-				test.loadCosts();
 			}
 		});
 	}

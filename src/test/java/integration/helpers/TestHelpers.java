@@ -1,10 +1,10 @@
 package test.java.integration.helpers;
 
 import com.datascience.core.base.AssignedLabel;
-import com.datascience.core.base.Category;
 import com.datascience.core.base.LObject;
-import com.datascience.gal.MisclassificationCost;
+import com.datascience.core.nominal.CategoryValue;
 import com.datascience.gal.dataGenerator.DataManager;
+import com.datascience.utils.CostMatrix;
 
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
@@ -44,7 +44,7 @@ public class TestHelpers {
 	 * @param categoriesFileName
 	 * @return Collection<Category>
 	 */
-	public Collection<Category> LoadCategories(String categoriesFileName){
+	public Collection<String> LoadCategories(String categoriesFileName){
 		//Load the categories and probabilities file from CATEGORIES_FILE 
 		Map<String, Double> categoryNamesProbsMap =  new HashMap<String, Double>();
 		
@@ -55,13 +55,28 @@ public class TestHelpers {
 			ex.printStackTrace();
 		}
 				 
-		Collection<Category> categories = new ArrayList<Category>();	 
+		Collection<String> categories = new ArrayList<String>();
 		for (Map.Entry<String, Double> entry : categoryNamesProbsMap.entrySet()) {
-			Category category  = new Category(entry.getKey());
-			category.setPrior(entry.getValue());
-			categories.add(category);
+			categories.add(entry.getKey());
 		}
 		return categories;	
+	}
+
+	public Collection<CategoryValue> loadCategoryPriors(String fn){
+		Map<String, Double> categoryNamesProbsMap =  new HashMap<String, Double>();
+
+		try{
+			categoryNamesProbsMap = dataManager.loadCategoriesWithProbabilities(fn);
+		}
+		catch (FileNotFoundException ex){
+			ex.printStackTrace();
+		}
+
+		Collection<CategoryValue> priors = new ArrayList<CategoryValue>();
+		for (Map.Entry<String, Double> entry : categoryNamesProbsMap.entrySet()) {
+			priors.add(new CategoryValue(entry.getKey(), entry.getValue()));
+		}
+		return priors;
 	}
 	
 	/**
@@ -69,16 +84,14 @@ public class TestHelpers {
 	 * @param misclassificationCostFileName
 	 * @return HashSet<MisclassificationCost>
 	 */
-	public HashSet<MisclassificationCost> LoadMisclassificationCosts(String misclassificationCostFileName){
-		HashSet<MisclassificationCost> misclassificationCosts = new HashSet<MisclassificationCost>();
-		
+	public CostMatrix<String> loadCostsMatrix(String misclassificationCostFileName){
 		try{
-			misclassificationCosts = (HashSet<MisclassificationCost>) fileReader.loadMisclassificationCostData(misclassificationCostFileName);
+			return fileReader.loadCostMatrix(misclassificationCostFileName);
 		}
 		catch (FileNotFoundException ex){
 			ex.printStackTrace();
 		}	
-		return misclassificationCosts;
+		return null;
 	}
 	
 	/**

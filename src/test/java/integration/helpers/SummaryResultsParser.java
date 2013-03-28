@@ -106,7 +106,4 @@ public class SummaryResultsParser {
 		this.dataQuality = transformToHashMap(dataQualityList);
 		this.workerQuality = transformToHashMap(workerQualityList);
 	}
-	
-	
-
 }

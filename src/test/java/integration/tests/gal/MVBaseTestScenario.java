@@ -37,7 +37,7 @@ public class MVBaseTestScenario extends BaseTestScenario {
 
 		//init the categoryProbabilities hashmap
 		HashMap <String, Double> categoryProbabilities = new HashMap<String, Double>();
-		for (String categoryName : data.getCategoriesNames()) {
+		for (String categoryName : data.getCategories()) {
 			categoryProbabilities.put(categoryName, 0.0);
 		}
 
@@ -51,11 +51,11 @@ public class MVBaseTestScenario extends BaseTestScenario {
 		}
 
 		//calculate the average probability value for each category
-		for (String categoryName : data.getCategoriesNames()) {
+		for (String categoryName : data.getCategories()) {
 			categoryProbabilities.put(categoryName, categoryProbabilities.get(categoryName) / noObjects);
 		}
 
-		for (String categoryName : data.getCategoriesNames()) {
+		for (String categoryName : data.getCategories()) {
 			String metricName = "[MV_Pr[" + categoryName + "]] Majority Vote estimate for prior probability of category " + categoryName;
 			String expectedCategoryProbability = dataQuality.get(metricName);
 			String actualCategoryProbability = testHelper.format(categoryProbabilities.get(categoryName));

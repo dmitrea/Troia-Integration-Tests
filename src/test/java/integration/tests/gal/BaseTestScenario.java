@@ -1,19 +1,18 @@
 package test.java.integration.tests.gal;
 
 import com.datascience.core.base.AssignedLabel;
-import com.datascience.core.base.Category;
 import com.datascience.core.base.LObject;
 import com.datascience.core.base.Worker;
+import com.datascience.core.nominal.CategoryValue;
 import com.datascience.core.nominal.NominalAlgorithm;
 import com.datascience.core.nominal.NominalData;
 import com.datascience.core.nominal.NominalProject;
 import com.datascience.core.nominal.decision.*;
 import com.datascience.core.results.WorkerResult;
-import com.datascience.gal.AbstractDawidSkene;
-import com.datascience.gal.MisclassificationCost;
 import com.datascience.gal.Quality;
 import com.datascience.gal.evaluation.DataEvaluator;
 import com.datascience.gal.evaluation.WorkerEvaluator;
+import com.datascience.utils.CostMatrix;
 import test.java.integration.helpers.FileWriters;
 import test.java.integration.helpers.SummaryResultsParser;
 import test.java.integration.helpers.TestHelpers;
@@ -61,12 +60,13 @@ public class BaseTestScenario {
 		loadAssignedLabels();
 		loadGoldLabels();
 		loadEvaluationLabels();
-		loadCosts();
 	}
 
 	public void loadCategories() {
-		Collection<Category> categories = testHelper.LoadCategories(inputDir + "categories.txt");
-		project.initializeCategories(categories);
+		Collection<String> categories = testHelper.LoadCategories(inputDir + "categories.txt");
+		Collection<CategoryValue> priors = testHelper.loadCategoryPriors(inputDir + "categories.txt");
+		CostMatrix<String> costs = testHelper.loadCostsMatrix(inputDir + "costs.txt");
+		project.initializeCategories(categories, priors, costs);
 	}
 
 	public void loadGoldLabels() {
@@ -100,13 +100,6 @@ public class BaseTestScenario {
 		for (AssignedLabel<String> assign : assignedLabels) {
 			data.addAssign(assign);
 		}
-	}
-
-	public void loadCosts() {
-		Set<MisclassificationCost> costs = testHelper.LoadMisclassificationCosts(inputDir + "costs.txt");
-		// XXX only for DawidSkene algorithms.
-		AbstractDawidSkene algorithm = (AbstractDawidSkene) project.getAlgorithm();
-		algorithm.addMisclassificationCosts(costs);
 	}
 
 	public void setFileWriter(FileWriters fileWriter) {

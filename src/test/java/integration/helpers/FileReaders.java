@@ -2,17 +2,13 @@ package test.java.integration.helpers;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.StringTokenizer;
 
-import com.datascience.core.base.ContValue;
-import com.datascience.gal.MisclassificationCost;
+import com.datascience.utils.CostMatrix;
 
 public class FileReaders {
 	
@@ -25,10 +21,10 @@ public class FileReaders {
 	 * @param filename
 	 * @throws FileNotFoundException
 	 */
-	public Set<MisclassificationCost> loadMisclassificationCostData(String filename)
+	public CostMatrix<String> loadCostMatrix(String filename)
 	throws FileNotFoundException{
-		
-		Set<MisclassificationCost> misclassificationCosts = new HashSet<MisclassificationCost>();
+
+		CostMatrix<String> matrix = new CostMatrix<String>();
 		FileInputStream stream = new FileInputStream(filename);
 		Scanner scanner = new Scanner(stream);
 		String line, categoryFrom, categoryTo;
@@ -40,9 +36,9 @@ public class FileReaders {
 			categoryFrom = st.nextToken();
 			categoryTo = st.nextToken();
 			cost = Double.valueOf(st.nextToken());
-			misclassificationCosts.add(new MisclassificationCost(categoryFrom, categoryTo, cost));
+			matrix.add(categoryFrom, categoryTo, cost);
 		}
-		return misclassificationCosts;		
+		return matrix;
 	}
 	
 	/**
