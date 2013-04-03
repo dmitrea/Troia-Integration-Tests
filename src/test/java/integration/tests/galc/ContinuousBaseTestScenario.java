@@ -41,7 +41,7 @@ public class ContinuousBaseTestScenario {
 	protected WorkersResultsParser workersResultsParser;
 	protected FileWriters fileWriter;
 	
-	public void setUp() {
+	public void setUp(String testName) {
 		algorithm = new ContinuousIpeirotis();
 		project = new ContinuousProject(algorithm);
 
@@ -55,7 +55,7 @@ public class ContinuousBaseTestScenario {
 		algorithm.estimate(EPSILON, MAX_ITERATIONS);
 		
 		//prepare the test results file
-		fileWriter = new FileWriters(RESULTS_BASE_DIR + "Results_AdultContent.csv");
+		fileWriter = new FileWriters(RESULTS_BASE_DIR + testName + ".csv");
 		fileWriter.write("Metric,Original GALC value,Troia value");
 	
 		objectsResultsParser = new ObjectsResultsParser();

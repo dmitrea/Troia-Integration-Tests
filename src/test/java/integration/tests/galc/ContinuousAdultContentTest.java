@@ -10,6 +10,6 @@ public class ContinuousAdultContentTest extends ContinuousBaseTestScenario {
 	public void setUp() {
 		setInputDir(TEST_NAME);
 		setOutputDir(TEST_NAME);
-		super.setUp();
+		super.setUp(TEST_NAME);
 	}
 }

@@ -2,18 +2,17 @@ package test.java.integration.tests.gal;
 
 import org.junit.Before;
 
-public class DSBarzanMozafariTest extends DSBaseTestScenario {
+public class BDSMovieLensTest extends DSBaseTestScenario {
 
-	public final static String TEST_NAME = "BarzanMozafari";
-
+	public final static String TEST_NAME = "Movielens-ml-100k";
+	
 	@Before
 	public void setUp() {
-		super.setUp(TEST_NAME, new IDataLoader() {
+		super.setUp("BDS", TEST_NAME, new IDataLoader() {
 			@Override
 			public void load(BaseTestScenario test) {
 				test.loadCategories();
 				test.loadAssignedLabels();
-				test.loadGoldLabels();
 			}
 		});
 	}

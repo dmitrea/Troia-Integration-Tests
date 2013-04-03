@@ -6,6 +6,8 @@ import com.datascience.core.base.Worker;
 import com.datascience.core.nominal.decision.ILabelProbabilityDistributionCostCalculator;
 import com.datascience.core.nominal.decision.LabelProbabilityDistributionCostCalculators;
 import com.datascience.gal.BatchDawidSkene;
+import com.datascience.gal.AbstractDawidSkene;
+import com.datascience.gal.IncrementalDawidSkene;
 import com.datascience.utils.ProbabilityDistributions;
 import org.junit.Test;
 
@@ -28,12 +30,27 @@ public class DSBaseTestScenario extends BaseTestScenario {
 			test.loadData();
 		}
 	}
-
-	public void setUp(String testName, IDataLoader dataLoader) {
-		BatchDawidSkene algorithm = new BatchDawidSkene();
-		algorithm.setEpsilon(EPSILON);
-		algorithm.setIterations(NO_ITERATIONS);
-		setUp(algorithm, testName, dataLoader);
+	public void setUp(String alg, String testName, IDataLoader dataLoader) {
+                AbstractDawidSkene algorithm = null;
+                if (alg.equals("BDS"))
+                {
+                     algorithm = new BatchDawidSkene();
+                }
+                else if (alg.equals("IDS"))
+                {
+                    algorithm = new IncrementalDawidSkene();
+                }
+                else
+                {
+                    System.err.println("Incorrect algorithm");
+                }
+                algorithm.setEpsilon(EPSILON);
+                algorithm.setIterations(NO_ITERATIONS);
+                if (alg.equals("IDS"))
+                {
+                	algorithm.compute();
+                }
+                setUp(algorithm, testName, dataLoader);
 	}
 
 	@Test
