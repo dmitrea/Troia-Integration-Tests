@@ -39,6 +39,7 @@
 				<configuration>
 					<excludes>
 						<exclude>**/TestHelpers.java</exclude>
+                                                <exclude>**/IDSAdultContentWithEvaluationTest.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
