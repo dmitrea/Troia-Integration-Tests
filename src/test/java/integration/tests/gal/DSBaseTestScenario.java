@@ -1,5 +1,6 @@
 package test.java.integration.tests.gal;
 
+import com.datascience.core.algorithms.INewDataObserver;
 import com.datascience.core.base.AssignedLabel;
 import com.datascience.core.base.LObject;
 import com.datascience.core.base.Worker;
@@ -46,10 +47,6 @@ public class DSBaseTestScenario extends BaseTestScenario {
                 }
                 algorithm.setEpsilon(EPSILON);
                 algorithm.setIterations(NO_ITERATIONS);
-                if (alg.equals("IDS"))
-                {
-                	algorithm.compute();
-                }
                 setUp(algorithm, testName, dataLoader);
 	}
 

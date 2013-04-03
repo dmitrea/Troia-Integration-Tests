@@ -1,5 +1,6 @@
 package test.java.integration.tests.gal;
 
+import com.datascience.core.algorithms.INewDataObserver;
 import com.datascience.core.base.AssignedLabel;
 import com.datascience.core.base.LObject;
 import com.datascience.core.base.Worker;
@@ -46,6 +47,9 @@ public class BaseTestScenario {
 	public void setUp(NominalAlgorithm algorithm, String testName, IDataLoader dataLoader) {
 		project = new NominalProject(algorithm);
 		data = project.getData();
+		if (algorithm instanceof INewDataObserver) {
+			data.addNewUpdatableAlgorithm((INewDataObserver) algorithm);
+		}
 		inputDir = DATA_BASE_DIR + testName + TestSettings.FILEPATH_SEPARATOR + "input" + TestSettings.FILEPATH_SEPARATOR;
 		outputDir = DATA_BASE_DIR + testName + TestSettings.FILEPATH_SEPARATOR + "output" + TestSettings.FILEPATH_SEPARATOR;
 		fileWriter = new FileWriters(outputDir + "Results_" + testName + ".csv");
