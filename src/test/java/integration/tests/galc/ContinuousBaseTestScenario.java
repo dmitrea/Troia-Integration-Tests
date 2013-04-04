@@ -125,7 +125,7 @@ public class ContinuousBaseTestScenario {
 			Worker<ContValue> worker = entry.getKey();
 			String workerName = worker.getName();
 			int expectedNoAssigns = Integer.parseInt(expWorkersResults.get(workerName).get("labels").toString()); 
-			int actualNoAssigns = worker.getAssigns().size();
+			int actualNoAssigns = project.getData().getWorkerAssigns(worker).size();
 			fileWriter.write("NoAssigns-" + workerName + "," + expectedNoAssigns + "," + actualNoAssigns);
 			assertEquals(expectedNoAssigns, actualNoAssigns);
 		}			
