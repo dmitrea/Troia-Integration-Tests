@@ -79,7 +79,7 @@ public class ContinuousBaseTestScenario {
 		Map<LObject<ContValue>, DatumContResults> objectsResult = algorithm.getObjectsResults();
 		Iterator<Entry<LObject<ContValue>, DatumContResults>> entries = objectsResult.entrySet().iterator();
 		while (entries.hasNext()) {
-			Entry<LObject<ContValue>, DatumContResults> entry = (Entry<LObject<ContValue>, DatumContResults>) entries.next();
+			Entry<LObject<ContValue>, DatumContResults> entry = entries.next();
 			LObject<ContValue> object = entry.getKey();
 			String objectName = object.getName();
 			Double actualAvgLabel = algorithm.getAverageLabel(object);
@@ -96,7 +96,7 @@ public class ContinuousBaseTestScenario {
 		Map<LObject<ContValue>, DatumContResults> objectsResult = algorithm.getObjectsResults();
 		Iterator<Entry<LObject<ContValue>, DatumContResults>> entries = objectsResult.entrySet().iterator();
 		while (entries.hasNext()) {
-			Entry<LObject<ContValue>, DatumContResults> entry = (Entry<LObject<ContValue>, DatumContResults>) entries.next();
+			Entry<LObject<ContValue>, DatumContResults> entry = entries.next();
 			LObject<ContValue> object = entry.getKey();
 			String objectName = object.getName();
 
@@ -125,7 +125,7 @@ public class ContinuousBaseTestScenario {
 			Worker<ContValue> worker = entry.getKey();
 			String workerName = worker.getName();
 			int expectedNoAssigns = Integer.parseInt(expWorkersResults.get(workerName).get("labels").toString()); 
-			int actualNoAssigns = worker.getAssigns().size();
+			int actualNoAssigns = project.getData().getWorkerAssigns(worker).size();
 			fileWriter.write("NoAssigns-" + workerName + "," + expectedNoAssigns + "," + actualNoAssigns);
 			assertEquals(expectedNoAssigns, actualNoAssigns);
 		}			

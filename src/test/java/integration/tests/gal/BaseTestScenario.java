@@ -190,7 +190,7 @@ public class BaseTestScenario {
 		for (Map.Entry<Worker<String>, WorkerResult> w : project.getResults().getWorkerResults().entrySet()) {
 			Worker<String> worker = w.getKey();
 			result.put(worker.getName(), workerEstimator.getCost(project, worker));
-			workerAssignedLabels.put(worker.getName(), worker.getAssigns().size());
+			workerAssignedLabels.put(worker.getName(), project.getData().getWorkerAssigns(worker).size());
 		}
 
 		Map <String, Double> workersQuality = Quality.fromCosts(project, result);
@@ -226,7 +226,7 @@ public class BaseTestScenario {
 		for (Map.Entry<Worker<String>, WorkerResult> w : project.getResults().getWorkerResults().entrySet()) {
 			Worker<String> worker = w.getKey();
 			result.put(worker.getName(), workerEvaluator.getCost(project, worker));
-			workerAssignedLabels.put(worker.getName(), worker.getAssigns().size());
+			workerAssignedLabels.put(worker.getName(), project.getData().getWorkerAssigns(worker).size());
 		}
 
 		Map <String, Double> workersQuality = Quality.fromCosts(project, result);

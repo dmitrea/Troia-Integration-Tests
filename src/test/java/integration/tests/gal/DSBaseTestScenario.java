@@ -450,7 +450,7 @@ public class DSBaseTestScenario extends BaseTestScenario {
 		double avgNoGoldTests = 0.0;
 		Set<Worker<String>>	workers  = data.getWorkers();
 		for (Worker<String> worker : workers) {
-			for (AssignedLabel<String> assign : worker.getAssigns()) {
+			for (AssignedLabel<String> assign : project.getData().getWorkerAssigns(worker)) {
 				if (assign.getLobject().isGold()) {
 					avgNoGoldTests += 1;
 				}
