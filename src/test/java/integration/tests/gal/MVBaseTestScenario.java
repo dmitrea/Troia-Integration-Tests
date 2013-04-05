@@ -4,6 +4,7 @@ import com.datascience.core.base.LObject;
 import com.datascience.core.nominal.decision.ILabelProbabilityDistributionCostCalculator;
 import com.datascience.core.nominal.decision.LabelProbabilityDistributionCostCalculators;
 import com.datascience.mv.BatchMV;
+import com.datascience.mv.IncrementalMV;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -26,8 +27,16 @@ public class MVBaseTestScenario extends BaseTestScenario {
 		}
 	}
 
-	public void setUp(String testName, IDataLoader testInitializer) {
+	public void setUp(String algorithm, String testName, IDataLoader testInitializer) {
+            if (algorithm.equals("BMV"))
+            {
 		setUp(new BatchMV(), testName, testInitializer);
+            }
+            else
+            {
+		setUp(new IncrementalMV(), testName, testInitializer);            
+            }
+                
 	}
 
 	@Test

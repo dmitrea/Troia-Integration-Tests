@@ -55,7 +55,7 @@ public class ContinuousBaseTestScenario {
 		algorithm.estimate(EPSILON, MAX_ITERATIONS);
 		
 		//prepare the test results file
-		fileWriter = new FileWriters(RESULTS_BASE_DIR + testName + ".csv");
+		fileWriter = new FileWriters(RESULTS_BASE_DIR + "Results_"+ testName + ".csv");
 		fileWriter.write("Metric,Original GALC value,Troia value");
 	
 		objectsResultsParser = new ObjectsResultsParser();

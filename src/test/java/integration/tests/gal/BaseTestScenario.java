@@ -28,7 +28,8 @@ import java.util.Set;
 public class BaseTestScenario {
 
 	public final static String DATA_BASE_DIR = TestSettings.GAL_TESTDATA_BASEDIR;
-
+        public final static String RESULTS_BASE_DIR = TestSettings.GAL_RESULTS_BASEDIR;
+        
 	protected String inputDir;
 	protected String outputDir;
 
@@ -40,7 +41,6 @@ public class BaseTestScenario {
 	protected NominalData data;
 
 	public static interface IDataLoader {
-
 		void load(BaseTestScenario test);
 	}
 
@@ -52,7 +52,7 @@ public class BaseTestScenario {
 		}
 		inputDir = DATA_BASE_DIR + testName + TestSettings.FILEPATH_SEPARATOR + "input" + TestSettings.FILEPATH_SEPARATOR;
 		outputDir = DATA_BASE_DIR + testName + TestSettings.FILEPATH_SEPARATOR + "output" + TestSettings.FILEPATH_SEPARATOR;
-		fileWriter = new FileWriters(outputDir + "Results_" + testName + ".csv");
+		fileWriter = new FileWriters(RESULTS_BASE_DIR + "Results_" + algorithm.getClass().getSimpleName() + "_" + testName + ".csv");
 		summaryResultsParser = new SummaryResultsParser(outputDir + "summary.txt");
 		dataLoader.load(this);
 		project.getAlgorithm().compute();
@@ -76,8 +76,6 @@ public class BaseTestScenario {
 	public void loadGoldLabels() {
 		Collection<LObject<String>> goldLabels = testHelper.LoadGoldLabels(inputDir + "correct.txt");
 		for (LObject<String> goldLabel : goldLabels) {
-			//LObject<String> object = data.getOrCreateObject(goldLabel.getName());
-			//object.setGoldLabel(goldLabel.getGoldLabel());
 			data.addObject(goldLabel);
 		}
 	}
@@ -85,8 +83,6 @@ public class BaseTestScenario {
 	public void loadEvaluationLabels() {
 		Collection<LObject<String>> evaluationLabels = testHelper.LoadEvaluationLabels(inputDir + "evaluation.txt");
 		for (LObject<String> evaluationLabel : evaluationLabels) {
-			//LObject<String> object = data.getOrCreateObject(evaluationLabel.getName());
-			//object.setEvaluationLabel(evaluationLabel.getEvaluationLabel());
 			data.addObject(evaluationLabel);
 		}
 	}
