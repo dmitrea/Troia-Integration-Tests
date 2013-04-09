@@ -77,6 +77,7 @@ public class ContinuousBaseTestScenario {
 	public void test_Objects_AverageLabel() {	
 		Map <String, Map<String, Double>> expEstObjects = objectsResultsParser.getEstimatedObjectValues(); 
 		Map<LObject<ContValue>, DatumContResults> objectsResult = algorithm.getObjectsResults();
+                assertEquals(expEstObjects.size(), objectsResult.size());
 		Iterator<Entry<LObject<ContValue>, DatumContResults>> entries = objectsResult.entrySet().iterator();
 		while (entries.hasNext()) {
 			Entry<LObject<ContValue>, DatumContResults> entry = entries.next();
@@ -94,6 +95,7 @@ public class ContinuousBaseTestScenario {
 	public void test_Objects_EstimatedValues() {	
 		Map <String, Map<String, Double>> expEstObjects = objectsResultsParser.getEstimatedObjectValues(); 
 		Map<LObject<ContValue>, DatumContResults> objectsResult = algorithm.getObjectsResults();
+                assertEquals(expEstObjects.size(), objectsResult.size());
 		Iterator<Entry<LObject<ContValue>, DatumContResults>> entries = objectsResult.entrySet().iterator();
 		while (entries.hasNext()) {
 			Entry<LObject<ContValue>, DatumContResults> entry = entries.next();
@@ -119,6 +121,7 @@ public class ContinuousBaseTestScenario {
 	public void test_Workers_Labels() {
 		Map <String, HashMap<String, Object>> expWorkersResults = workersResultsParser.getWorkersResults();
 		Map<Worker<ContValue>, WorkerContResults> workersResults = algorithm.getWorkersResults();
+                assertEquals(expWorkersResults.size(), workersResults.size());
 		Iterator<Entry<Worker<ContValue>, WorkerContResults>> entries = workersResults.entrySet().iterator();
 		while (entries.hasNext()) {
 			Entry<Worker<ContValue>, WorkerContResults> entry = entries.next();
@@ -136,6 +139,7 @@ public class ContinuousBaseTestScenario {
 	public void test_Workers_EstimatedValues() {
 		Map <String, HashMap<String, Object>> expWorkersResults = workersResultsParser.getWorkersResults();
 		Map<Worker<ContValue>, WorkerContResults> workersResults = algorithm.getWorkersResults();
+                assertEquals(expWorkersResults.size(), workersResults.size());
 		Iterator<Entry<Worker<ContValue>, WorkerContResults>> entries = workersResults.entrySet().iterator();
 		while (entries.hasNext()) {
 			Entry<Worker<ContValue>, WorkerContResults> entry = entries.next();
