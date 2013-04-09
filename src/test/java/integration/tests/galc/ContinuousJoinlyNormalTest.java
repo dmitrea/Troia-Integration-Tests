@@ -3,9 +3,9 @@ package test.java.integration.tests.galc;
 import com.datascience.galc.ContinuousIpeirotis;
 import org.junit.BeforeClass;
 
-public class ContinuousAdultContentTest extends ContinuousBaseTestScenario {
+public class ContinuousJoinlyNormalTest extends ContinuousBaseTestScenario {
 
-    public static String TEST_NAME = "adultcontent";
+    public static String TEST_NAME = "joinlynormal";
     static ContinuousBaseTestScenario.Setup testSetup;
 
     @BeforeClass
