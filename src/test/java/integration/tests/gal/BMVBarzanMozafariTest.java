@@ -1,20 +1,15 @@
 package test.java.integration.tests.gal;
 
-import org.junit.Before;
+import org.junit.BeforeClass;
 
 public class BMVBarzanMozafariTest extends MVBaseTestScenario {
 
-	public final static String TEST_NAME = "BarzanMozafari";
+    public final static String TEST_NAME = "BarzanMozafari";
+    static MVBaseTestScenario.Setup testSetup;
 
-	@Before
-	public void setUp() {
-		super.setUp("BMV", TEST_NAME, new IDataLoader() {
-			@Override
-			public void load(BaseTestScenario test) {
-				test.loadCategories();
-				test.loadAssignedLabels();
-				test.loadGoldLabels();
-			}
-		});
-	}
+    @BeforeClass
+    public static void setUp() {
+        testSetup = new MVBaseTestScenario.Setup("BMV", TEST_NAME, false);
+        initSetup(testSetup);
+    }
 }

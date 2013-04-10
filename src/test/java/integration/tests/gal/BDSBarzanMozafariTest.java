@@ -1,20 +1,15 @@
 package test.java.integration.tests.gal;
 
-import org.junit.Before;
+import org.junit.BeforeClass;
 
 public class BDSBarzanMozafariTest extends DSBaseTestScenario {
 
-	public final static String TEST_NAME = "BarzanMozafari";
+    public final static String TEST_NAME = "BarzanMozafari";
+    static DSBaseTestScenario.Setup testSetup;
 
-	@Before
-	public void setUp() {
-		super.setUp("BDS", TEST_NAME, new IDataLoader() {
-			@Override
-			public void load(BaseTestScenario test) {
-				test.loadCategories();
-				test.loadAssignedLabels();
-				test.loadGoldLabels();
-			}
-		});
-	}
+    @BeforeClass
+    public static void setUp() {
+        testSetup = new DSBaseTestScenario.Setup("BDS", TEST_NAME, false);
+        initSetup(testSetup);
+    }
 }

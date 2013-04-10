@@ -1,13 +1,15 @@
 package test.java.integration.tests.gal;
 
-import org.junit.Before;
+import org.junit.BeforeClass;
+import static test.java.integration.tests.gal.IMVAdultContentWithEvaluationTest.testSetup;
 
 public class IMVBarzanMozafariWithEvaluationTest extends MVBaseTestScenario {
 
-	public final static String TEST_NAME = "BarzanMozafariWithEvaluation";
+    public final static String TEST_NAME = "BarzanMozafariWithEvaluation";
 
-	@Before
-	public void setUp() {
-		super.setUp("IMV", TEST_NAME, new MVTestInitializer());
-	}
+    @BeforeClass
+    public static void setUp() {
+        testSetup = new MVBaseTestScenario.Setup("IMV", TEST_NAME, true);
+        initSetup(testSetup);
+    }
 }
