@@ -58,7 +58,11 @@ public class ContinuousBaseTestScenario {
         empData.loadGoldLabelsFile(inputDir + "goldObjects.txt");
         empData.loadTrueObjectData(inputDir + "evaluationObjects.txt");
 
-        algorithm.estimate(EPSILON, MAX_ITERATIONS);
+		project.setData(empData);
+		algorithm.setData(empData);
+		algorithm.setEpsilon(EPSILON);
+		algorithm.setIterations(MAX_ITERATIONS);
+        algorithm.compute();
 
         //prepare the test results file
         fileWriter = new FileWriters(RESULTS_BASE_DIR + "Results_" + testSetup.testName + ".csv");
